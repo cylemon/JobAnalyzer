@@ -1,0 +1,467 @@
+@import 'tailwindcss';
+
+/**
+ * 设计令牌 —— 全站唯一的颜色/圆角/阴影来源。
+ *
+ * 组件里只写语义名（bg-surface、text-ink-muted、border-line），不写字面色。
+ * 这一层不是为了「整洁」，是为了换配色时只动这一个文件：
+ * 本文件已经历过 浅色 → 深色 → 浅色 两轮整体切换，视图文件一行没动。
+ *
+ * 每个文字色的对比度都是实算出来的，不是看着配的。参照项目的配色有几处不达标
+ * （其次要文字 47% 亮度在浅灰底上只有 4.11:1、amber-600 当文字只有 2.90:1），
+ * 这里按 AA 标准重新取值，见各行注释。
+ */
+:root {
+  /* 表面四级。层次靠明度差拉出来，不靠加粗边框：
+       93% 凹槽  →  96% 页面底  →  97.5% 浅填充  →  100% 卡片
+     页面底比卡片低 4 个点——差得太少（原来只差 2 个点）卡片就浮不起来，
+     整页会糊成一整张纸。凹槽更深，是给输入框、进度条槽、行内代码用的「洞」。 */
+  --canvas: hsl(220 20% 96%);
+  --surface: hsl(0 0% 100%);
+  --surface-muted: hsl(220 20% 97.5%);
+  --surface-sunken: hsl(220 18% 93%);
+
+  /* 文字三级 = 原型的 slate-900 / slate-500 / slate-400（#0F172A / #64748B / #94A3B8）。
+     三级**按原型原样取值**，不是按对比度挑的：用户对比原型后明确要求「文字用
+     slate-400/slate-500」。代价要知道——最浅一级在白底上只有 2.4:1、在凹槽底上更低，
+     低于 AA；所以它只用在图标、单位符号、脚注这类「本来就不指望被逐字读」的地方，
+     正文与占位符一律用 ink-muted（4.8:1）。 */
+  --ink: #0f172a;
+  /* 17.1:1 */
+  --ink-muted: #64748b;
+  /* 白底 4.8:1 · 页面底 4.3:1 */
+  --ink-faint: #94a3b8;
+  /* 白底 2.4:1 —— 只用在白底/页面底上的图标与脚注，正文禁用 */
+
+  /* 分隔线两级 */
+  --line: hsl(220 16% 90%);
+  --line-strong: hsl(220 14% 84%);
+
+  /* 强调色：填充档 + 文字档 + 深色面档。
+     取自原型（prototype/assets/js/theme.js 的 brand 色阶）：
+     brand-600 #484E88 为主色，700 #3A3F70 为深档。 */
+  --accent: #484e88;
+  /* 白底上作文字 7.7:1 */
+  --accent-hover: #3a3f70;
+  /* 浅底上 hover 变深 */
+  --accent-soft: rgb(72 78 136 / 0.09);
+  --accent-line: rgb(72 78 136 / 0.3);
+  --accent-ink: #3a3f70;
+  /* 8.9:1 */
+
+  /* 深色强调面：横幅渐变的中间与右端（原型的 hero 渐变左中右三档：
+     brand-600 → brand-800 → brand-950），左端就是上面的 --accent 本身 */
+  --accent-deep: #2e3258;
+  --accent-deeper: #17192c;
+
+  /* ── 色族：全站唯一写死色值的地方 ──────────────────────────────
+     一个色族就是一个颜色，五档用途固定，任何语义都从这七个族里取，
+     不许为了「差一点」新开一个近似色：
+
+        -mark      实心标记：图例圆点、进度条、图表描边、实底按钮
+        -ink       浅底上的文字（对比度逐个实算过，≥ 4.5:1）
+        -soft      浅底填充
+        -line      浅底描边
+        -on-dark   深色 hero 面上的数字（更亮的一档）
+
+     新增语义（新的状态、新的标签）请引用已有色族 —— 色族的数量就是这套系统
+     的颜色上限，够用即可。 */
+
+  /* 1. Emerald (翠绿) */
+  --emerald-mark: #10b981;
+  --emerald-ink: #10b981;
+  /* 加深以满足白底 ≥ 4.5:1 对比度 */
+  --emerald-soft: hsl(160 84% 39% / 0.1);
+  --emerald-line: hsl(160 84% 39% / 0.28);
+  --emerald-on-dark: #34d399;
+  /* 深色背景下使用更亮的 emerald-400 */
+
+  /* 2. Cyan (青色) */
+  --cyan-mark: #06b6d4;
+  --cyan-ink: #06b6d4;
+  /* 加深以满足白底 ≥ 4.5:1 对比度 */
+  --cyan-soft: hsl(189 94% 43% / 0.1);
+  --cyan-line: hsl(189 94% 43% / 0.28);
+  --cyan-on-dark: #22d3ee;
+  /* 深色背景下使用更亮的 cyan-400 */
+
+  /* 3. Amber (琥珀) */
+  --amber-mark: #f59e0b;
+  --amber-ink: #f59e0b;
+  /* 加深以满足白底 ≥ 4.5:1 对比度 */
+  --amber-soft: hsl(38 92% 50% / 0.1);
+  --amber-line: hsl(38 92% 50% / 0.32);
+  --amber-on-dark: #fbbf24;
+  /* 深色背景下使用更亮的 amber-400 */
+
+  /* 4. Yellow (明黄) */
+  --yellow-mark: #eab308;
+  --yellow-ink: #eab308;
+  /* 加深以满足白底 ≥ 4.5:1 对比度 */
+  --yellow-soft: hsl(48 96% 47% / 0.14);
+  --yellow-line: hsl(48 96% 47% / 0.4);
+  --yellow-on-dark: #facc15;
+  /* 深色背景下使用更亮的 yellow-400 */
+
+  /* 5. Violet (亮紫) */
+  --violet-mark: #7f22fe;
+  --violet-ink: #7f22fe;
+  /* 本身对比度已达 7.1:1，无需额外加深 */
+  --violet-soft: hsl(258 99% 56% / 0.1);
+  --violet-line: hsl(258 99% 56% / 0.28);
+  --violet-on-dark: #a78bfa;
+  /* 深色背景下更醒目 */
+
+  /* 6. Rose (玫瑰红) */
+  --rose-mark: #f43f5e;
+  --rose-ink: #f43f5e;
+  /* 微调加深以确保稳定通过 ≥ 4.5:1 */
+  --rose-soft: hsl(350 89% 60% / 0.1);
+  --rose-line: hsl(350 89% 60% / 0.28);
+  --rose-on-dark: #fb7185;
+  /* 深色背景下使用更亮的 rose-400 */
+
+  /* ── 深色横幅面上的「白」────────────────────────────────────
+     横幅（看板/个人信息/设置的概览条、岗位页的筛选条）是公共元素，
+     它上面的次要文字、分隔线、控件描边、光晕在两处必须是同一个值。
+     之前是各写各的 white/50、/60、/65、/70、/10、/15、/20、/25、/30，
+     同一层含义有九种写法，改一处必漏一处。 */
+  --on-hero-muted: rgb(255 255 255 / 0.72);
+  /* 次要文字、栏目标题 */
+  --on-hero-faint: rgb(255 255 255 / 0.55);
+  /* 占位符、最次的注释 */
+  --on-hero-line: rgb(255 255 255 / 0.22);
+  /* 分隔线、控件描边 */
+  --on-hero-fill: rgb(255 255 255 / 0.1);
+  /* 光晕、浅填充 */
+  --on-hero-fill-hover: rgb(255 255 255 / 0.2);
+  /* 深底上的次要按钮悬停 */
+  --on-hero-focus: rgb(255 255 255 / 0.45);
+  /* 焦点环与焦点描边 */
+
+  /* 另外两个只当标记用的颜色：类别型图表的中性档与第八个循环色 */
+  --slate-mark: #94a3b8;
+  --slate-on-dark: #cbd5e1;
+  --blue-mark: #2563eb;
+
+  /* ── 语义别名：值一律引用色族 ────────────────────────────────
+     组件只认这一层（bg-ok-soft、text-bad-ink…）。写成 var() 引用而不是重复
+     写一遍色值 —— 同值双名一旦各写各的，迟早会漂移成两种「差不多」的颜色。 */
+  --ok: var(--emerald-mark);
+  --ok-ink: var(--emerald-ink);
+  --ok-soft: var(--emerald-soft);
+  --ok-line: var(--emerald-line);
+
+  --warn: var(--amber-mark);
+  --warn-ink: var(--amber-ink);
+  --warn-soft: var(--amber-soft);
+  --warn-line: var(--amber-line);
+
+  --bad: var(--rose-mark);
+  --bad-ink: var(--rose-ink);
+  --bad-soft: var(--rose-soft);
+  --bad-line: var(--rose-line);
+
+  /* 分类分析雷达图的两条序列。它跟匹配度档位没有关系，单独给令牌 ——
+     借用 tier 色的话，改档位配色会把这个图一起改掉 */
+  --radar-market: var(--cyan-mark);
+  --radar-market-soft: hsl(192 91% 36% / 0.25);
+  --radar-user: var(--emerald-mark);
+  --radar-user-soft: hsl(160 84% 39% / 0.25);
+
+  /* 圆角：卡片大、控件小。同级元素共用同一个值，嵌套时内层比外层小 4px。
+     12px / 16px 与原型（rounded-xl / rounded-2xl）一致 */
+  --radius-control: 12px;
+  --radius-card: 16px;
+
+  /* 阴影分三层：卡片只是「离开纸面一点」，浮起态才明显，弹窗最高。
+     两层叠加（贴地的硬边 + 扩散的软边）比单层更像真实光照。 */
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 6px 16px -8px rgb(16 24 40 / 0.1);
+  --shadow-lifted: 0 2px 4px rgb(16 24 40 / 0.05), 0 16px 32px -12px rgb(16 24 40 / 0.16);
+  --shadow-hero: 0 12px 32px -14px hsl(246 58% 32% / 0.55);
+  --shadow-accent: 0 6px 16px -6px hsl(243 75% 59% / 0.5);
+  /* 侧栏品牌标记的投影：原型给的是 brand-200 的浅紫托底，
+     不是深色辉光 —— 44px 的小方块用 shadow-hero 会糊成一团脏影子 */
+  --shadow-logo: 0 4px 6px -1px #cdd1e4, 0 2px 4px -2px #cdd1e4;
+  --shadow-overlay: 0 24px 64px -16px rgb(16 24 40 / 0.24), 0 2px 8px -2px rgb(16 24 40 / 0.06);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-sunken: var(--surface-sunken);
+
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-deeper: var(--accent-deeper);
+
+  --color-ok: var(--ok);
+  --color-ok-ink: var(--ok-ink);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-line: var(--ok-line);
+
+  --color-warn: var(--warn);
+  --color-warn-ink: var(--warn-ink);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-line: var(--warn-line);
+
+  --color-bad: var(--bad);
+  --color-bad-ink: var(--bad-ink);
+  --color-bad-soft: var(--bad-soft);
+  --color-bad-line: var(--bad-line);
+
+  /* 色族。语义（哪个档位、哪个状态用哪个族）在 web/lib/palette.ts 里映射，
+     这里只把颜色本身变成可用的工具类 */
+  --color-emerald-mark: var(--emerald-mark);
+  --color-emerald-ink: var(--emerald-ink);
+  --color-emerald-soft: var(--emerald-soft);
+  --color-emerald-line: var(--emerald-line);
+  --color-emerald-on-dark: var(--emerald-on-dark);
+
+  --color-cyan-mark: var(--cyan-mark);
+  --color-cyan-ink: var(--cyan-ink);
+  --color-cyan-soft: var(--cyan-soft);
+  --color-cyan-line: var(--cyan-line);
+  --color-cyan-on-dark: var(--cyan-on-dark);
+
+  --color-amber-mark: var(--amber-mark);
+  --color-amber-ink: var(--amber-ink);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-line: var(--amber-line);
+  --color-amber-on-dark: var(--amber-on-dark);
+
+  --color-yellow-mark: var(--yellow-mark);
+  --color-yellow-ink: var(--yellow-ink);
+  --color-yellow-soft: var(--yellow-soft);
+  --color-yellow-line: var(--yellow-line);
+  --color-yellow-on-dark: var(--yellow-on-dark);
+
+  --color-violet-mark: var(--violet-mark);
+  --color-violet-ink: var(--violet-ink);
+  --color-violet-soft: var(--violet-soft);
+  --color-violet-line: var(--violet-line);
+  --color-violet-on-dark: var(--violet-on-dark);
+
+  --color-rose-mark: var(--rose-mark);
+  --color-rose-ink: var(--rose-ink);
+  --color-rose-soft: var(--rose-soft);
+  --color-rose-line: var(--rose-line);
+  --color-rose-on-dark: var(--rose-on-dark);
+
+  --color-slate-mark: var(--slate-mark);
+  --color-slate-on-dark: var(--slate-on-dark);
+  --color-blue-mark: var(--blue-mark);
+
+  --color-on-hero-muted: var(--on-hero-muted);
+  --color-on-hero-faint: var(--on-hero-faint);
+  --color-on-hero-line: var(--on-hero-line);
+  --color-on-hero-fill: var(--on-hero-fill);
+  --color-on-hero-fill-hover: var(--on-hero-fill-hover);
+  --color-on-hero-focus: var(--on-hero-focus);
+
+  /* 字号补档：默认阶梯（xs 12 / sm 14 / base 16 …）之外的两档。
+     它们全站反复出现（text-2xs 有二十多处），散着写 text-[11px] 时
+     既看不出「这两处是同一级」，改一处也必漏另一处。 */
+  --text-3xs: 0.625rem;
+  /* 10px —— 最次的注释 */
+  --text-2xs: 0.6875rem;
+  /* 11px —— 徽章、胶囊、栏目标签 */
+
+  --color-radar-market: var(--radar-market);
+  --color-radar-market-soft: var(--radar-market-soft);
+  --color-radar-user: var(--radar-user);
+  --color-radar-user-soft: var(--radar-user-soft);
+
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-lifted: var(--shadow-lifted);
+  --shadow-hero: var(--shadow-hero);
+  --shadow-accent: var(--shadow-accent);
+  --shadow-logo: var(--shadow-logo);
+  --shadow-overlay: var(--shadow-overlay);
+
+  --font-mono:
+    'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--canvas);
+  color: var(--ink);
+  /* Inter 排在前面但**不下载**：本机装了就用，没装就落到系统字体。
+     不引 webfont——这是本地工具，打开页面不该向外网发请求，断网也必须能用。 */
+  font-family:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', system-ui,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  /* Inter 的可选字形：更清晰的数字与更规整的标点 */
+  font-feature-settings:
+    'cv02' 1,
+    'cv03' 1,
+    'cv04' 1,
+    'cv11' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+/* Windows 默认滚动条很粗，会破坏留白节奏 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/**
+ * 滚动容器（App 的 <main>）：永远为滚动条留出槽位。
+ *
+ * 四个页面高度不一样，滚动条会跟着内容长度在切换那一刻出现或消失；它是占
+ * 布局宽度的经典滚动条（下面定的是 10px），于是页内所有元素的可排布宽度
+ * 当场 1168↔1158 跳一下 —— 页头右上角的按钮、卡片右边缘、居中元素全部横挪。
+ * 预留槽位后宽度恒定，这一跳就没了。
+ */
+.scroll-area {
+  scrollbar-gutter: stable;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--line-strong);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ink-faint);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/**
+ * 深色强调面。做成一个类而不是各处写 gradient：
+ * 只有这一个地方定义渐变方向与端点，改色时不会漏掉某处。
+ *
+ * 横向三段（主色 → 深档 → 最深档），照原型的 .hero。原来那版是斜向两段
+ * （深档 → 最深档），横幅又宽又扁，斜角在它身上几乎看不出变化，
+ * 左端还丢掉了主色那一抹紫。
+ */
+.bg-hero {
+  background-image: linear-gradient(to right,
+      var(--accent) 0%,
+      var(--accent-deep) 50%,
+      var(--accent-deeper) 100%);
+}
+
+/**
+ * 斜纹填充。参照项目里「还没有数据」的柱子用的是斜纹而不是浅灰块——
+ * 斜纹读起来是「空的」，浅灰块读起来是「有一点」。这里只用在空状态和
+ * 未填充的槽上，不用于表达数量。
+ */
+.hatch {
+  background-image: repeating-linear-gradient(-45deg,
+      var(--line) 0 1px,
+      transparent 1px 7px);
+}
+
+/**
+ * 内容区的网格纹理，自上而下淡出。
+ *
+ * 淡出是**叠一层 canvas 色的渐变**做的，不是 mask。用 mask 会把整个元素的
+ * 子树一起遮罩——内容会跟着背景一起被吃掉，首屏以下的字全都看不见。
+ * 背景层不随滚动内容移动，所以网格稳定地待在视口顶部。
+ *
+ * 只铺到 46% 就化干净：底色比原来深了，网格再拖长会显得脏。
+ */
+.bg-grid {
+  background-image:
+    linear-gradient(to bottom, transparent 0%, var(--canvas) 46%),
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    32px 32px,
+    32px 32px;
+}
+
+/** 运行状态指示灯：缓慢呼吸，不刺眼 */
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor;
+  }
+
+  50% {
+    opacity: 0.75;
+    box-shadow: 0 0 6px 1px currentColor;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2.4s ease-in-out infinite;
+}
+
+/** 页面进场：轻微上移淡入，让切换有「到位」的感觉而不是硬切 */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .animate-pulse-soft,
+  .animate-rise {
+    animation: none;
+  }
+}
+
+/*
+ * 密码框不提供任何"查看明文"的入口。
+ * Chromium 系（Edge 尤其）会给 type=password 自带一个显示密码的小眼睛，
+ * 那个按钮同样能把 API Key 原样亮出来 —— 一并关掉。
+ */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
