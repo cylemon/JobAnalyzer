@@ -2,25 +2,12 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
-import { Hono } from 'hono'
-import { logger } from 'hono/logger'
+import { createApp } from './app'
 import { DATA_DIR, PROJECT_ROOT, WEB_DIST } from './config/paths'
 import { getDb, hasPendingMigrations, initDb } from './db/client'
-import { fail } from './http'
 import { runAutoBackup } from './services/dataAssets'
 import { countCachedEmbeddings } from './services/semantic'
 import { registerEmbeddingStatsProvider } from './config/settings'
-import { abilitiesRoute } from './routes/abilities'
-import { aliasesRoute } from './routes/aliases'
-import { categoriesRoute } from './routes/categories'
-import { experiencesRoute } from './routes/experiences'
-import { jobsRoute } from './routes/jobs'
-import { dashboardRoute } from './routes/dashboard'
-import { progressRoute } from './routes/progress'
-import { reevaluationRoute } from './routes/reevaluation'
-import { schemaFieldsRoute } from './routes/schemaFields'
-import { settingsRoute } from './routes/settings'
-import { skillsRoute } from './routes/skills'
 
 /**
  * 本地服务入口（03-architecture.md §2）。
@@ -31,31 +18,7 @@ const HOST = '127.0.0.1'
 // 端口可用 PORT 覆盖，便于在同一台机器上跑一个不影响日常使用的隔离实例
 const PORT = Number(process.env.PORT ?? 8787)
 
-const app = new Hono()
-
-app.use(logger())
-
-app.get('/api/health', (c) => c.json({ ok: true }))
-
-app.route('/api/skills', skillsRoute)
-app.route('/api/abilities', abilitiesRoute)
-app.route('/api/experiences', experiencesRoute)
-app.route('/api/dashboard', dashboardRoute)
-app.route('/api/settings', settingsRoute)
-app.route('/api/categories', categoriesRoute)
-app.route('/api/jobs', jobsRoute)
-app.route('/api/reevaluation', reevaluationRoute)
-app.route('/api/aliases', aliasesRoute)
-app.route('/api/schema-fields', schemaFieldsRoute)
-app.route('/api/progress', progressRoute)
-
-app.notFound((c) => fail(c, 404, 'NOT_FOUND', `接口不存在：${c.req.method} ${c.req.path}`))
-
-// 原则 ①「失败必须显性」：未预期的异常必须记录完整日志并返回明确错误，不得静默吞掉
-app.onError((err, c) => {
-  console.error('[server] 未处理的异常:', err)
-  return fail(c, 500, 'INTERNAL_ERROR', `服务端异常：${err.message}`)
-})
+const app = createApp()
 
 /**
  * 前端产物托管（生产形态）。`npm run build` 之后，同一个进程既发 API 也发界面，
