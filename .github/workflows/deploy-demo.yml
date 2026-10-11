@@ -26,11 +26,24 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npm test
+      # 失败时把测试输出留一份：默认要展开日志才看得到，写到运行摘要里一眼就能读
+      - name: 运行测试
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee "$RUNNER_TEMP/test.log"
+      - if: failure()
+        run: |
+          {
+            echo '## 测试失败'
+            echo '```'
+            tail -80 "$RUNNER_TEMP/test.log"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build:
     needs: verify
@@ -39,7 +52,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
 
