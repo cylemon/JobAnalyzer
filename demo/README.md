@@ -71,9 +71,13 @@ Rollup 的摇树把赋值和 `return` 一并删掉，只留下那句 `throw` —
 
 ```bash
 npm run demo:snapshot     # 需要本地有可用的 data/jobanalyzer.db
-npm run build:demo        # 产物在 web/dist
-npx serve web/dist        # 或者任何静态服务器
+npm run build:demo        # 产物在 web/dist-demo（与正常构建的 web/dist 分开）
+npx serve web/dist-demo   # 或者任何静态服务器
 ```
 
 产物用的是带 `base` 的绝对路径（默认 `/JobAnalyzer/`）。要在根路径下看，
 用 `JOBANALYZER_BASE=/ npm run build:demo` 再构建一次。
+
+产物目录必须与 `web/dist` 分开：演示构建的 `base` 带 `/JobAnalyzer/` 前缀，
+而 `npm start` 托管的是 `web/dist`——一旦两者混用，8787 打开的就是一份
+资源全部 404 的白屏。

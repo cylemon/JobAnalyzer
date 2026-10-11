@@ -103,6 +103,11 @@ export default defineConfig(({ mode }) => {
       : {},
     build: isDemo
       ? {
+          // 演示产物与正常构建**分目录存放**，绝不能共用 web/dist：
+          // 两者的 base 不同（演示带 /JobAnalyzer/ 前缀），而 `npm start` 托管的是 web/dist。
+          // 共用时只要跑过一次 `npm run build:demo`，8787 打开的就是一份引用
+          // /JobAnalyzer/assets/* 的页面 —— 在根路径下全部 404，表现为白屏。
+          outDir: 'dist-demo',
           rollupOptions: {
             output: {
               // 服务端代码里还有 process.cwd()（推项目根目录）。它是模块顶层就求值的，

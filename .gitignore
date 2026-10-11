@@ -222,6 +222,8 @@ __marimo__/
 # --- Node / 本项目 ---
 node_modules/
 dist/
+# 演示构建的产物目录（名字不叫 dist，上面的规则盖不住它）
+dist-demo/
 coverage/
 .vite/
 *.tsbuildinfo

@@ -73,7 +73,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web/dist
+          path: web/dist-demo
 
   deploy:
     needs: build
