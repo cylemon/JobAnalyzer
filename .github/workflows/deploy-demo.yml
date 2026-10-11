@@ -45,8 +45,14 @@ jobs:
 
       # Pages 站点的访问路径（https://<用户名>.github.io/<仓库名>/）。
       # 前端资源必须带这段前缀，交给它算比写死仓库名稳：仓库改名、换用户都不用改代码。
+      #
+      # enablement 让首次运行不必先去仓库设置里手工开启 Pages（开启后这一项不再起作用）。
+      # 若所在仓库的策略不允许用工作流令牌开启，就在 Settings → Pages 里把
+      # Source 选成 "GitHub Actions"，然后重跑本工作流。
       - uses: actions/configure-pages@v5
         id: pages
+        with:
+          enablement: true
 
       - run: npm run build:demo
         env:
