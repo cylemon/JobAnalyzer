@@ -24,6 +24,7 @@ import type {
   SettingsSource,
   SettingsTestResult,
 } from '@shared/schemas/settings'
+import { IS_DEMO } from '@/lib/bootstrap'
 import { Feedback, type FeedbackMessage } from '@/components/Feedback'
 import { HeroDivider, HeroGroup, HeroPanel } from '@/components/HeroPanel'
 import { PageHeader } from '@/components/PageHeader'
@@ -596,16 +597,19 @@ export function SettingsPage() {
               )}
             </section>
 
-            {/* 数据资产（F-6.3）：导出 + 备份 + 向量缓存 */}
+            {/* 数据资产（F-6.3）：导出 + 备份 + 向量缓存。
+                演示模式下只留导出：备份与恢复都要读写本机文件，静态站没有磁盘可写。 */}
             <section className="space-y-4">
               <SectionHeader
                 title="数据资产"
                 meta={
-                  backups === null
-                    ? undefined
-                    : latestBackupAt === null
-                      ? '还没有备份'
-                      : `最近备份：${formatRelativeTime(latestBackupAt)}`
+                  IS_DEMO
+                    ? '演示模式'
+                    : backups === null
+                      ? undefined
+                      : latestBackupAt === null
+                        ? '还没有备份'
+                        : `最近备份：${formatRelativeTime(latestBackupAt)}`
                 }
                 action={
                   <>
@@ -622,6 +626,7 @@ export function SettingsPage() {
                       variant="secondary"
                       size="sm"
                       disabled={assetAction !== null}
+                      hidden={IS_DEMO}
                       onClick={() => uploadInputRef.current?.click()}
                     >
                       <Upload size={ICON_SIZE.control} />
@@ -630,6 +635,7 @@ export function SettingsPage() {
                     <Button
                       size="sm"
                       disabled={assetAction !== null}
+                      hidden={IS_DEMO}
                       onClick={() => void handleRunBackup()}
                     >
                       <Archive size={ICON_SIZE.control} />
@@ -644,6 +650,11 @@ export function SettingsPage() {
                   {backupError != null ? (
                     <p className="rounded-control bg-bad-soft px-3.5 py-2.5 text-sm text-bad-ink">
                       读取备份列表失败：{backupError}
+                    </p>
+                  ) : IS_DEMO ? (
+                    <p className="text-xs leading-relaxed text-ink-muted">
+                      演示模式没有磁盘可写：备份与恢复要读写本机文件，只在本机完整版里提供。
+                      「导出全部数据」不受影响——它读的是当前这份库，导出的 JSON 一样是完整的。
                     </p>
                   ) : backups === null ? (
                     <p className="text-xs text-ink-muted">正在读取备份列表…</p>
@@ -694,7 +705,7 @@ export function SettingsPage() {
                     </ul>
                   )}
 
-                  {backupDir !== null && (
+                  {backupDir !== null && !IS_DEMO && (
                     <p className="font-mono text-2xs break-all text-ink-faint">目录：{backupDir}</p>
                   )}
 
