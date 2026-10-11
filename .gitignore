@@ -14,11 +14,13 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# 下面这些 Python 模板条目一律锚定到仓库根目录：不锚定的 lib/ 会把
+# web/lib/、src/lib/ 这类真正的源码目录一并忽略掉（本项目已踩过一次）。
+/lib/
+/lib64/
 parts/
 sdist/
-var/
+/var/
 wheels/
 share/python-wheels/
 *.egg-info/
@@ -49,7 +51,7 @@ coverage.xml
 *.py.cover
 .hypothesis/
 .pytest_cache/
-cover/
+/cover/
 
 # Translations
 *.mo
@@ -73,7 +75,7 @@ docs/_build/
 
 # PyBuilder
 .pybuilder/
-target/
+/target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -151,8 +153,8 @@ activemq-data/
 .env
 .envrc
 .venv
-env/
-venv/
+/env/
+/venv/
 ENV/
 env.bak/
 venv.bak/
@@ -216,3 +218,36 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Node / 本项目 ---
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# --- 参考资料 ---
+# 两份外部源码副本，只用于参考写法，不是本项目的依赖（也未复制其代码）。
+# 入库只会污染仓库，所以排除。
+/tremor-main/
+/project-example/
+/project-example2/
+
+# --- AI 工具配置 ---
+# Claude Code 的本机配置（权限、本地设置）因人而异，不入版本库。
+# 若日后要共享项目级配置（settings.json、commands/、agents/），再单独放行那几个路径。
+.claude/
+
+# --- 操作系统垃圾文件 ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 本地数据与配置：数据库、备份、密钥，一律不入版本库（见 02 文档 N-4）
+/data/
+config.local.json
+*.local
+.env
+.env.*
+# 但示例文件要进版本库，方便照着填
+!.env.example
