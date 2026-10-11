@@ -25,5 +25,5 @@
       "@/*": ["./web/*"]
     }
   },
-  "include": ["server", "shared", "web", "tests", "*.ts"]
+  "include": ["server", "shared", "web", "demo", "tests", "*.ts"]
 }
