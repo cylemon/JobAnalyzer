@@ -18,6 +18,7 @@ export default defineConfig({
       'server/**/*.test.ts',
       'shared/**/*.test.ts',
       'web/**/*.test.ts',
+      'demo/**/*.test.ts',
       'tests/**/*.test.ts',
     ],
   },
