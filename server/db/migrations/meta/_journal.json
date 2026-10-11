@@ -1,0 +1,104 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790903431657,
+      "tag": "0000_boring_mattie_franklin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790905251021,
+      "tag": "0001_quiet_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790906079926,
+      "tag": "0002_parallel_hairball",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790906640821,
+      "tag": "0003_wakeful_sally_floyd",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1790906802921,
+      "tag": "0004_glamorous_karen_page",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1790906882461,
+      "tag": "0005_black_vapor",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1790908455007,
+      "tag": "0006_living_kinsey_walden",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791114627259,
+      "tag": "0007_outgoing_psynapse",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1791123890156,
+      "tag": "0008_past_mentallo",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1791271763398,
+      "tag": "0009_add_project_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1791271820175,
+      "tag": "0010_drop_legacy_experience_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1791271989194,
+      "tag": "0011_drop_preset_ability_dimensions",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1791333374602,
+      "tag": "0012_add_required_level",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1791333613079,
+      "tag": "0013_purge_orphan_ability_dimensions",
+      "breakpoints": true
+    }
+  ]
+}

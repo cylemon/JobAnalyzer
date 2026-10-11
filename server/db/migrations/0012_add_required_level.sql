@@ -1,0 +1,1 @@
+ALTER TABLE `job_requirement` ADD `required_level` text;
