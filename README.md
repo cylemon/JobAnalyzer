@@ -1,5 +1,8 @@
 # JobAnalyzer · 技能与能力导向求职助手
 
+[![部署演示站](https://github.com/cylemon/JobAnalyzer/actions/workflows/deploy-demo.yml/badge.svg)](https://github.com/cylemon/JobAnalyzer/actions/workflows/deploy-demo.yml)
+[![在线演示](https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E6%BC%94%E7%A4%BA-JobAnalyzer-6d5ce7)](https://cylemon.github.io/JobAnalyzer/)
+
 把招聘 JD 变成**结构化的要求清单**，逐条对照自己的知识、能力与项目经验，
 算出"这个岗位我到底差在哪、还差多少"——而不是只收藏一堆链接。
 
