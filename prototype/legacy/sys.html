@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统设置 - Job Analyzer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#F4F5F9',
+              100: '#E6E8F2',
+              200: '#CDD1E4',
+              300: '#A7ADCf',
+              400: '#7E85B6',
+              500: '#5C629E',
+              600: '#484E88', // Core Soft Purple
+              700: '#3A3F70',
+              800: '#2E3258',
+              900: '#232643',
+              950: '#17192C'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    }
+    
+    .card-shadow-hover {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-shadow-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(72, 78, 136, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+  <!-- Left Navigation Sidebar Block -->
+  <aside class="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between p-5 z-10 shrink-0">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 px-2 mb-8">
+        <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-200">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-900 text-base leading-tight">JobAnalyzer</h1>
+          <p class="text-xs text-slate-400 font-medium">技能与能力导向求职助手</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1.5">
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-chart-pie w-5 text-slate-400"></i>
+          <span>综合看板</span>
+        </a>
+        <a href="job info.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-briefcase w-5 text-slate-400"></i>
+          <span>岗位信息</span>
+        </a>
+        <a href="per info.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-user-gear w-5 text-slate-400"></i>
+          <span>个人信息</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-50 text-brand-600 text-sm font-semibold transition-colors">
+          <i class="fa-solid fa-sliders w-5 text-brand-600"></i>
+          <span>系统设置</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Storage Badge -->
+    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+      <div class="flex items-center justify-between text-xs text-slate-500 mb-2 font-medium">
+        <span>本地缓存保护</span>
+        <span class="text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i> 隐私安全</span>
+      </div>
+      <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mb-2">
+        <div class="bg-brand-600 h-full w-2/5"></div>
+      </div>
+      <p class="text-xs text-slate-400">数据全量存储于本地浏览器</p>
+    </div>
+  </aside>
+
+  <!-- Right Workspace Block (Unified Content Panel) -->
+  <main class="flex-1 h-full overflow-y-auto bg-[#F8FAFC]">
+    
+    <!-- Sticky Top Section: Header & Dark Overview Banner -->
+    <div class="sticky top-0 z-20 bg-[#F8FAFC] px-8 pt-8 pb-4 space-y-6">
+      <!-- Page Integrated Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">系统设置</h2>
+          <p class="text-sm text-slate-500 mt-0.5">管理多厂商大语言模型 (LLM) API 接口、模型推理参数与系统全局配置</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Toast Notification Box -->
+          <div id="toastMessage" class="hidden text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toastText">操作成功</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Overview Banner -->
+      <section class="bg-gradient-to-r from-brand-600 via-brand-800 to-brand-950 rounded-2xl p-6 border border-brand-500/30 shadow-lg text-white relative overflow-hidden">
+        <div class="absolute -left-10 -top-10 w-48 h-48 bg-brand-400/25 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+          
+          <!-- LLM Engine Overview Summary -->
+          <div class="flex-1 space-y-2">
+            <span class="text-brand-200 text-sm font-semibold uppercase tracking-wider block">大模型引擎适配概览</span>
+            <div id="bannerLlmStats" class="flex flex-wrap items-center gap-6 text-center pt-1">
+              <!-- Dynamically Populated via JS -->
+            </div>
+          </div>
+
+          <div class="hidden lg:block h-14 w-px bg-brand-400/20"></div>
+
+          <!-- Active Model & Privacy Status -->
+          <div class="flex-1 space-y-2">
+            <span class="text-brand-200 text-sm font-semibold uppercase tracking-wider block">当前默认推理引擎</span>
+            <div id="bannerActiveStats" class="flex flex-wrap items-center gap-6 text-center pt-1">
+              <!-- Dynamically Populated via JS -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- Scrollable Content Body -->
+    <div class="px-8 pb-8 space-y-6 pt-2">
+      
+      <!-- Section 1: Global LLM Inference Settings -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h3 class="font-bold text-lg text-slate-900 border-l-4 border-brand-600 pl-3">全局模型推理默认参数</h3>
+            <p class="text-xs text-slate-400 pl-4 mt-0.5">选择默认调用的 LLM 模型并设置统一的 Temperature、Tokens 及请求超时阈值</p>
+          </div>
+
+          <button onclick="saveGlobalSettings()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-brand-200 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>保存全局参数</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-200/80 card-shadow">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Active Model Selection -->
+            <div class="space-y-1.5">
+              <label class="font-semibold text-slate-700 text-sm block">默认模型引擎</label>
+              <select id="globalActiveModel" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-brand-500">
+                <!-- Populated dynamically via JS -->
+              </select>
+            </div>
+
+            <!-- Temperature Control -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-sm">
+                <label class="font-semibold text-slate-700">随机性 / 采样温度 (Temperature)</label>
+                <span id="tempValueDisplay" class="font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded text-xs">0.7</span>
+              </div>
+              <div class="flex items-center gap-3 pt-1">
+                <span class="text-xs text-slate-400 font-medium">精确</span>
+                <input type="range" id="globalTemperature" min="0" max="2" step="0.1" value="0.7" oninput="document.getElementById('tempValueDisplay').textContent = this.value" class="w-full accent-brand-600 h-2 bg-slate-200 rounded-lg cursor-pointer">
+                <span class="text-xs text-slate-400 font-medium">发散</span>
+              </div>
+            </div>
+
+            <!-- Max Tokens Limit -->
+            <div class="space-y-1.5">
+              <label class="font-semibold text-slate-700 text-sm block">单次生成最大 Token (Max Tokens)</label>
+              <input type="number" id="globalMaxTokens" value="4096" step="256" min="256" max="32768" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500">
+            </div>
+
+            <!-- Request Timeout -->
+            <div class="space-y-1.5">
+              <label class="font-semibold text-slate-700 text-sm block">请求超时时间 (秒)</label>
+              <input type="number" id="globalTimeout" value="60" min="5" max="300" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-brand-500">
+            </div>
+
+            <!-- Streaming Response Toggle -->
+            <div class="space-y-1.5">
+              <label class="font-semibold text-slate-700 text-sm block">响应流式打字输出 (Stream Output)</label>
+              <div class="flex items-center gap-3 pt-2">
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="globalStream" checked class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+                <span class="text-xs text-slate-500 font-medium">开启后大模型分析结果将打字实时流式呈现</span>
+              </div>
+            </div>
+
+            <!-- System Prompt Preset -->
+            <div class="space-y-1.5 md:col-span-2 lg:col-span-3">
+              <label class="font-semibold text-slate-700 text-sm block">系统级通用 Prompt 约束前缀 (System Instruction Prefix)</label>
+              <textarea id="globalSystemPrompt" rows="2" placeholder="全局预设 System Prompt，例如：你是一个资深的职业规划专家和 HR 招聘总监..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-sans text-sm text-slate-700 focus:outline-none focus:border-brand-500">你是一个精通 HR 招聘分析与技术岗位对齐的专业 AI 导师。请保持客观、严谨、专业的语气，针对用户的简历履历与目标岗位需求进行精准分析。</textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: LLM Providers Configuration Grid -->
+      <section class="space-y-4 pt-2">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h3 class="font-bold text-lg text-slate-900 border-l-4 border-brand-600 pl-3">LLM 模型厂商与接口配置</h3>
+            <p class="text-xs text-slate-400 pl-4 mt-0.5">支持配置多家主流大模型云端 API（OpenAI, DeepSeek, 阿里通义, Anthropic, 月之暗面等）及本地 Ollama 私有化部署服务</p>
+          </div>
+
+          <button onclick="openProviderModal()" class="px-4 py-2 bg-[#484E88] hover:bg-brand-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-brand-200 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>新增 LLM 厂商</span>
+          </button>
+        </div>
+
+        <!-- Provider Cards Container -->
+        <div id="providersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamic LLM Provider Cards Rendered via JS -->
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Modal: Add / Edit LLM Provider -->
+  <div id="providerModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 border border-slate-100 my-8 overflow-y-auto max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-cloud-bolt"></i>
+          </div>
+          <h3 id="providerModalTitle" class="font-bold text-lg text-slate-900">配置 LLM 厂商接口</h3>
+        </div>
+        <button onclick="closeProviderModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="providerForm" onsubmit="saveProvider(event)" class="space-y-4 text-sm">
+        <input type="hidden" id="providerId">
+
+        <!-- Preset Vendor Quick Selector -->
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">快速填充预设厂商模板</label>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="applyVendorPreset('deepseek')" class="px-3 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 rounded-lg text-xs font-semibold text-slate-600 transition-colors">DeepSeek 深度求索</button>
+            <button type="button" onclick="applyVendorPreset('openai')" class="px-3 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 rounded-lg text-xs font-semibold text-slate-600 transition-colors">OpenAI 官方</button>
+            <button type="button" onclick="applyVendorPreset('qwen')" class="px-3 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 rounded-lg text-xs font-semibold text-slate-600 transition-colors">阿里 DashScope / 问天</button>
+            <button type="button" onclick="applyVendorPreset('moonshot')" class="px-3 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 rounded-lg text-xs font-semibold text-slate-600 transition-colors">月之暗面 Kimi</button>
+            <button type="button" onclick="applyVendorPreset('ollama')" class="px-3 py-1 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 rounded-lg text-xs font-semibold text-slate-600 transition-colors">Ollama 本地大模型</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1.5">厂商/服务名称</label>
+            <input type="text" id="providerName" required placeholder="例如: DeepSeek 官方" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1.5">接口协议 Adapter</label>
+            <select id="providerProtocol" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-medium">
+              <option value="OpenAI Compatible">OpenAI API 格式兼容</option>
+              <option value="Anthropic Claude">Anthropic Claude API</option>
+              <option value="Ollama Native">Ollama 本地 REST API</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">API Base URL (端点基地址)</label>
+          <input type="url" id="providerBaseUrl" required placeholder="https://api.deepseek.com/v1" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">API Key (密钥凭证)</label>
+          <div class="relative">
+            <input type="password" id="providerApiKey" placeholder="sk-********************************" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 pr-10">
+            <button type="button" onclick="togglePasswordVisibility('providerApiKey', this)" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">如使用本地 Ollama 无需填写密钥；密钥将严格本地加密存储。</p>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">支持的模型列表 (用英文逗号分隔)</label>
+          <input type="text" id="providerModels" required placeholder="deepseek-chat, deepseek-coder" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">此厂商默认主打模型</label>
+          <input type="text" id="providerDefaultModel" required placeholder="deepseek-chat" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">自定义 Header 附加参数 (可选, JSON 格式)</label>
+          <textarea id="providerHeaders" rows="2" placeholder='{"HTTP-Referer": "http://localhost", "X-Title": "JobAnalyzer"}' class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-brand-500"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="providerEnabled" checked class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500">
+          <label for="providerEnabled" class="text-sm font-semibold text-slate-700">启用该厂商服务接口</label>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeProviderModal()" class="px-4 py-2 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50">
+            取消
+          </button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md shadow-brand-200">
+            保存配置
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Test Connection Log & Diagnostic Popup -->
+  <div id="testModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-network-wired text-brand-600"></i>
+          <h3 class="font-bold text-lg text-slate-900">API 连通性测试诊断</h3>
+        </div>
+        <button onclick="closeTestModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <div class="bg-slate-900 rounded-2xl p-4 text-emerald-400 font-mono text-xs space-y-2 max-h-48 overflow-y-auto" id="testLogContainer">
+          <!-- Live Diagnostic Output Dynamic Insertion -->
+        </div>
+
+        <div id="testStatusBanner" class="p-3 rounded-xl border flex items-center gap-3">
+          <!-- Dynamic Result Status -->
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-2">
+        <button onclick="closeTestModal()" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 text-xs">
+          关闭窗口
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-base text-slate-900">确定删除该 LLM 厂商配置？</h4>
+          <p class="text-xs text-slate-500 mt-0.5">移除后该厂商的所有 API 密钥与模型选择将被清除。</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button onclick="closeDeleteModal()" class="px-3.5 py-2 border border-slate-200 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-colors">
+          取消
+        </button>
+        <button onclick="executeDeleteProvider()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-rose-200 transition-colors">
+          确认删除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    /* Default Pre-configured LLM Providers Store */
+    const defaultProviders = [
+      {
+        id: 1,
+        name: 'DeepSeek 深度求索',
+        protocol: 'OpenAI Compatible',
+        baseUrl: 'https://api.deepseek.com/v1',
+        apiKey: 'sk-d8a9f201b4c5e67890a1b2c3d4e5f6g7',
+        models: ['deepseek-chat', 'deepseek-coder', 'deepseek-reasoner'],
+        defaultModel: 'deepseek-chat',
+        headers: '',
+        enabled: true,
+        isDefault: true
+      },
+      {
+        id: 2,
+        name: 'OpenAI 官方 API',
+        protocol: 'OpenAI Compatible',
+        baseUrl: 'https://api.openai.com/v1',
+        apiKey: 'sk-proj-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
+        models: ['gpt-4o', 'gpt-4o-mini', 'o3-mini', 'gpt-3.5-turbo'],
+        defaultModel: 'gpt-4o-mini',
+        headers: '',
+        enabled: true,
+        isDefault: false
+      },
+      {
+        id: 3,
+        name: '阿里 DashScope (通义千问)',
+        protocol: 'OpenAI Compatible',
+        baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+        apiKey: 'sk-aliyun889900aabbccddeeff',
+        models: ['qwen-max', 'qwen-plus', 'qwen-turbo', 'qwen-coder-turbo'],
+        defaultModel: 'qwen-max',
+        headers: '',
+        enabled: true,
+        isDefault: false
+      },
+      {
+        id: 4,
+        name: 'Ollama 本地私有部署',
+        protocol: 'Ollama Native',
+        baseUrl: 'http://localhost:11434/v1',
+        apiKey: '',
+        models: ['llama3.2:latest', 'qwen2.5-coder:7b', 'deepseek-r1:8b'],
+        defaultModel: 'qwen2.5-coder:7b',
+        headers: '',
+        enabled: true,
+        isDefault: false
+      }
+    ];
+
+    /* Default Global Settings Store */
+    const defaultGlobalSettings = {
+      activeModel: 'deepseek-chat@DeepSeek 深度求索',
+      temperature: 0.7,
+      maxTokens: 4096,
+      timeout: 60,
+      stream: true,
+      systemPrompt: '你是一个精通 HR 招聘分析与技术岗位对齐的专业 AI 导师。请保持客观、严谨、专业的语气，针对用户的简历履历与目标岗位需求进行精准分析。'
+    };
+
+    /* State Variables */
+    let providersData = JSON.parse(localStorage.getItem('jobanalyzer_llm_providers')) || defaultProviders;
+    let globalSettings = JSON.parse(localStorage.getItem('jobanalyzer_global_settings')) || defaultGlobalSettings;
+    let deleteTargetId = null;
+
+    /* Preset Helper */
+    const vendorPresets = {
+      deepseek: {
+        name: 'DeepSeek 深度求索',
+        protocol: 'OpenAI Compatible',
+        baseUrl: 'https://api.deepseek.com/v1',
+        models: 'deepseek-chat, deepseek-coder, deepseek-reasoner',
+        defaultModel: 'deepseek-chat'
+      },
+      openai: {
+        name: 'OpenAI 官方 API',
+        protocol: 'OpenAI Compatible',
+        baseUrl: 'https://api.openai.com/v1',
+        models: 'gpt-4o, gpt-4o-mini, o3-mini',
+        defaultModel: 'gpt-4o-mini'
+      },
+      qwen: {
+        name: '阿里 DashScope (通义千问)',
+        protocol: 'OpenAI Compatible',
+        baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+        models: 'qwen-max, qwen-plus, qwen-turbo',
+        defaultModel: 'qwen-max'
+      },
+      moonshot: {
+        name: '月之暗面 Moonshot (Kimi)',
+        protocol: 'OpenAI Compatible',
+        baseUrl: 'https://api.moonshot.cn/v1',
+        models: 'moonshot-v1-8k, moonshot-v1-32k, moonshot-v1-128k',
+        defaultModel: 'moonshot-v1-8k'
+      },
+      ollama: {
+        name: 'Ollama 本地部署',
+        protocol: 'Ollama Native',
+        baseUrl: 'http://localhost:11434/v1',
+        models: 'llama3.2:latest, qwen2.5-coder:7b, deepseek-r1:8b',
+        defaultModel: 'qwen2.5-coder:7b'
+      }
+    };
+
+    function applyVendorPreset(presetKey) {
+      const preset = vendorPresets[presetKey];
+      if (!preset) return;
+      document.getElementById('providerName').value = preset.name;
+      document.getElementById('providerProtocol').value = preset.protocol;
+      document.getElementById('providerBaseUrl').value = preset.baseUrl;
+      document.getElementById('providerModels').value = preset.models;
+      document.getElementById('providerDefaultModel').value = preset.defaultModel;
+    }
+
+    /* Save Local Storage */
+    function saveData() {
+      localStorage.setItem('jobanalyzer_llm_providers', JSON.stringify(providersData));
+      localStorage.setItem('jobanalyzer_global_settings', JSON.stringify(globalSettings));
+    }
+
+    /* Render LLM Providers List */
+    function renderProviders() {
+      const container = document.getElementById('providersContainer');
+      container.innerHTML = '';
+
+      if (providersData.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl p-8 text-center text-slate-400 border border-slate-200/80 card-shadow">
+            <i class="fa-solid fa-plug text-3xl mb-2 text-slate-300"></i>
+            <p class="text-sm font-medium">暂未配置任何大模型厂商，请点击右上角“新增 LLM 厂商”</p>
+          </div>
+        `;
+        updateBannerStats();
+        populateGlobalActiveModelSelect();
+        return;
+      }
+
+      providersData.forEach(p => {
+        const card = document.createElement('div');
+        card.className = `bg-white rounded-2xl p-5 border ${p.isDefault ? 'border-brand-500 shadow-brand-100' : 'border-slate-200/80'} card-shadow card-shadow-hover flex flex-col justify-between space-y-4 relative overflow-hidden`;
+
+        // Protocol Icon selection
+        let iconClass = 'fa-brain';
+        if (p.name.includes('OpenAI')) iconClass = 'fa-robot';
+        else if (p.name.includes('阿里') || p.name.includes('通义')) iconClass = 'fa-cloud';
+        else if (p.name.includes('Ollama')) iconClass = 'fa-server';
+        else if (p.name.includes('Kimi') || p.name.includes('月之暗面')) iconClass = 'fa-moon';
+
+        // Models tags
+        const modelsTagsHtml = (p.models || []).map(m => `
+          <span class="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">${m}</span>
+        `).join('');
+
+        // Masked Key
+        const keyDisplay = p.apiKey ? (p.apiKey.substring(0, 5) + '••••••••' + p.apiKey.slice(-4)) : '无需 API Key (无凭证)';
+
+        card.innerHTML = `
+          ${p.isDefault ? `<div class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-sm"><i class="fa-solid fa-star text-amber-300 mr-1"></i>默认厂商</div>` : ''}
+
+          <div class="flex items-start justify-between gap-2 pr-12">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl ${p.enabled ? 'bg-brand-50 text-brand-600' : 'bg-slate-100 text-slate-400'} flex items-center justify-center text-lg font-bold">
+                <i class="fa-solid ${iconClass}"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                  ${p.name}
+                </h4>
+                <span class="text-xs text-slate-400 font-medium">${p.protocol}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 bg-slate-50/80 p-3 rounded-xl border border-slate-100 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">Endpoint:</span>
+              <span class="font-mono text-slate-700 truncate max-w-[200px]" title="${p.baseUrl}">${p.baseUrl}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">API Key:</span>
+              <span class="font-mono text-slate-600">${keyDisplay}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">主打默认模型:</span>
+              <span class="font-bold text-brand-600 font-mono">${p.defaultModel}</span>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[11px] text-slate-400 font-semibold block mb-1">支持的模型列表:</span>
+            <div class="flex flex-wrap gap-1 max-h-16 overflow-y-auto">
+              ${modelsTagsHtml}
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1">
+              <button onclick="testConnection(${p.id})" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt"></i>
+                <span>测试连通性</span>
+              </button>
+
+              ${!p.isDefault ? `
+                <button onclick="setDefaultProvider(${p.id})" class="px-2.5 py-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg text-xs font-medium transition-colors" title="设为全局默认厂商">
+                  设为默认
+                </button>
+              ` : ''}
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button onclick="editProvider(${p.id})" class="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg transition-colors" title="编辑">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="confirmDeleteProvider(${p.id})" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition-colors" title="删除">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      updateBannerStats();
+      populateGlobalActiveModelSelect();
+    }
+
+    /* Populate Global Model Selector Dropdown */
+    function populateGlobalActiveModelSelect() {
+      const select = document.getElementById('globalActiveModel');
+      select.innerHTML = '';
+
+      let foundSaved = false;
+
+      providersData.filter(p => p.enabled).forEach(p => {
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = p.name;
+
+        (p.models || []).forEach(m => {
+          const valueKey = `${m}@${p.name}`;
+          const option = document.createElement('option');
+          option.value = valueKey;
+          option.textContent = `${m} (${p.name})`;
+          
+          if (valueKey === globalSettings.activeModel) {
+            option.selected = true;
+            foundSaved = true;
+          }
+          optGroup.appendChild(option);
+        });
+
+        select.appendChild(optGroup);
+      });
+
+      if (!foundSaved && select.options.length > 0) {
+        select.selectedIndex = 0;
+        globalSettings.activeModel = select.value;
+      }
+    }
+
+    /* Update Top Overview Banner Stats */
+    function updateBannerStats() {
+      // LLM Engine Breakdown
+      const totalProviders = providersData.length;
+      const enabledProviders = providersData.filter(p => p.enabled).length;
+      let totalModelsCount = 0;
+      providersData.forEach(p => {
+        totalModelsCount += (p.models || []).length;
+      });
+
+      const bannerLlmStats = document.getElementById('bannerLlmStats');
+      bannerLlmStats.innerHTML = `
+        <div class="pr-5 border-r border-brand-400/20">
+          <div class="flex items-baseline gap-1 justify-center lg:justify-start">
+            <span class="text-2xl md:text-3xl font-bold text-amber-300 leading-none">${enabledProviders}</span>
+            <span class="text-xs font-normal text-brand-200">/ ${totalProviders} 家</span>
+          </div>
+          <span class="text-xs md:text-sm text-brand-200 font-medium mt-1 block">已启用 LLM 服务商</span>
+        </div>
+
+        <div class="pr-5">
+          <div class="flex items-baseline gap-1 justify-center lg:justify-start">
+            <span class="text-2xl md:text-3xl font-bold text-cyan-300 leading-none">${totalModelsCount}</span>
+            <span class="text-xs font-normal text-brand-200">个</span>
+          </div>
+          <span class="text-xs md:text-sm text-brand-200 font-medium mt-1 block">可调用大模型总数</span>
+        </div>
+      `;
+
+      // Active Model Banner Breakdown
+      const bannerActiveStats = document.getElementById('bannerActiveStats');
+      const activeParts = (globalSettings.activeModel || '').split('@');
+      const activeModelName = activeParts[0] || '未配置';
+      const activeVendorName = activeParts[1] || '无引擎';
+
+      bannerActiveStats.innerHTML = `
+        <div class="pr-5 border-r border-brand-400/20">
+          <div class="flex items-baseline gap-1 justify-center lg:justify-start">
+            <span class="text-lg md:text-xl font-bold text-emerald-300 leading-none truncate max-w-[180px]">${activeModelName}</span>
+          </div>
+          <span class="text-xs md:text-sm text-brand-200 font-medium mt-1 block">${activeVendorName}</span>
+        </div>
+
+        <div>
+          <div class="flex items-baseline gap-1 justify-center lg:justify-start">
+            <span class="text-xl font-bold text-white leading-none"><i class="fa-solid fa-lock text-emerald-400"></i> 本地离线</span>
+          </div>
+          <span class="text-xs md:text-sm text-brand-200 font-medium mt-1 block">密钥隐私强保护</span>
+        </div>
+      `;
+    }
+
+    /* Save Global Settings */
+    function saveGlobalSettings() {
+      globalSettings.activeModel = document.getElementById('globalActiveModel').value;
+      globalSettings.temperature = parseFloat(document.getElementById('globalTemperature').value);
+      globalSettings.maxTokens = parseInt(document.getElementById('globalMaxTokens').value) || 4096;
+      globalSettings.timeout = parseInt(document.getElementById('globalTimeout').value) || 60;
+      globalSettings.stream = document.getElementById('globalStream').checked;
+      globalSettings.systemPrompt = document.getElementById('globalSystemPrompt').value;
+
+      saveData();
+      updateBannerStats();
+      showToast('全局 LLM 推理参数保存成功');
+    }
+
+    /* Modal Operations: Provider */
+    function openProviderModal(isEdit = false) {
+      if (!isEdit) {
+        document.getElementById('providerForm').reset();
+        document.getElementById('providerId').value = '';
+        document.getElementById('providerModalTitle').textContent = '新增 LLM 厂商配置';
+        document.getElementById('providerEnabled').checked = true;
+      }
+      document.getElementById('providerModal').classList.remove('hidden');
+    }
+
+    function closeProviderModal() {
+      document.getElementById('providerModal').classList.add('hidden');
+    }
+
+    function saveProvider(e) {
+      e.preventDefault();
+      const id = document.getElementById('providerId').value;
+      const name = document.getElementById('providerName').value;
+      const protocol = document.getElementById('providerProtocol').value;
+      const baseUrl = document.getElementById('providerBaseUrl').value;
+      const apiKey = document.getElementById('providerApiKey').value;
+      const rawModels = document.getElementById('providerModels').value;
+      const models = rawModels.split(/[,，]/).map(m => m.trim()).filter(m => m !== '');
+      const defaultModel = document.getElementById('providerDefaultModel').value;
+      const headers = document.getElementById('providerHeaders').value;
+      const enabled = document.getElementById('providerEnabled').checked;
+
+      if (id) {
+        const item = providersData.find(p => p.id === parseInt(id));
+        if (item) {
+          item.name = name;
+          item.protocol = protocol;
+          item.baseUrl = baseUrl;
+          item.apiKey = apiKey;
+          item.models = models;
+          item.defaultModel = defaultModel;
+          item.headers = headers;
+          item.enabled = enabled;
+        }
+        showToast('厂商配置修改保存成功');
+      } else {
+        const newProvider = {
+          id: Date.now(),
+          name,
+          protocol,
+          baseUrl,
+          apiKey,
+          models,
+          defaultModel,
+          headers,
+          enabled,
+          isDefault: providersData.length === 0
+        };
+        providersData.push(newProvider);
+        showToast('已成功新增 LLM 厂商配置');
+      }
+
+      saveData();
+      closeProviderModal();
+      renderProviders();
+    }
+
+    function editProvider(id) {
+      const p = providersData.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('providerId').value = p.id;
+      document.getElementById('providerName').value = p.name;
+      document.getElementById('providerProtocol').value = p.protocol;
+      document.getElementById('providerBaseUrl').value = p.baseUrl;
+      document.getElementById('providerApiKey').value = p.apiKey || '';
+      document.getElementById('providerModels').value = (p.models || []).join(', ');
+      document.getElementById('providerDefaultModel').value = p.defaultModel || '';
+      document.getElementById('providerHeaders').value = p.headers || '';
+      document.getElementById('providerEnabled').checked = p.enabled;
+      document.getElementById('providerModalTitle').textContent = '编辑 LLM 厂商配置';
+
+      openProviderModal(true);
+    }
+
+    function setDefaultProvider(id) {
+      providersData.forEach(p => {
+        p.isDefault = (p.id === id);
+      });
+      saveData();
+      renderProviders();
+      showToast('已更新全局默认 LLM 厂商');
+    }
+
+    /* Delete Provider Operations */
+    function confirmDeleteProvider(id) {
+      deleteTargetId = id;
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      deleteTargetId = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    }
+
+    function executeDeleteProvider() {
+      if (deleteTargetId) {
+        providersData = providersData.filter(p => p.id !== deleteTargetId);
+        saveData();
+        renderProviders();
+        showToast('已删除该 LLM 厂商配置');
+      }
+      closeDeleteModal();
+    }
+
+    /* Interactive Diagnostic Test Connection */
+    function testConnection(id) {
+      const provider = providersData.find(p => p.id === id);
+      if (!provider) return;
+
+      const logContainer = document.getElementById('testLogContainer');
+      const banner = document.getElementById('testStatusBanner');
+      
+      logContainer.innerHTML = '';
+      banner.className = 'p-3 rounded-xl border flex items-center gap-3 bg-slate-50 text-slate-600 border-slate-200';
+      banner.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-brand-600"></i><span class="text-xs font-medium">正在尝试与 API 端点建立握手连接...</span>`;
+
+      document.getElementById('testModal').classList.remove('hidden');
+
+      const appendLog = (msg) => {
+        const time = new Date().toLocaleTimeString();
+        logContainer.innerHTML += `<div>[${time}] ${msg}</div>`;
+        logContainer.scrollTop = logContainer.scrollHeight;
+      };
+
+      appendLog(`初始化测试目标: ${provider.name}`);
+      appendLog(`适配协议: ${provider.protocol}`);
+      appendLog(`请求 URL Base: ${provider.baseUrl}`);
+
+      setTimeout(() => {
+        appendLog(`检查 API 凭证格式... ${provider.apiKey ? 'Key 结构有效' : '无 Key (公网/本地模态)'}`);
+        appendLog(`准备 HTTP GET / POST 心跳请求...`);
+      }, 500);
+
+      setTimeout(() => {
+        const fakeLatency = Math.floor(Math.random() * 150) + 80;
+        appendLog(`收到服务端响应 HTTP status: 200 OK (${fakeLatency}ms)`);
+        appendLog(`成功枚举后端就绪模型: ${provider.models.join(', ')}`);
+
+        banner.className = 'p-3 rounded-xl border flex items-center gap-3 bg-emerald-50 text-emerald-700 border-emerald-200';
+        banner.innerHTML = `
+          <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+          <div>
+            <div class="font-bold text-xs">连通测试完全成功 (延迟: ${fakeLatency}ms)</div>
+            <div class="text-[11px] text-emerald-600/80">后端模型引擎就绪，可随时进行 JobAnalyzer 技能分析</div>
+          </div>
+        `;
+      }, 1400);
+    }
+
+    function closeTestModal() {
+      document.getElementById('testModal').classList.add('hidden');
+    }
+
+    /* UI Helper Utilities */
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toastMessage');
+      document.getElementById('toastText').textContent = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    /* Page Initialization */
+    window.onload = function() {
+      // Load saved global settings into UI
+      document.getElementById('globalTemperature').value = globalSettings.temperature || 0.7;
+      document.getElementById('tempValueDisplay').textContent = globalSettings.temperature || 0.7;
+      document.getElementById('globalMaxTokens').value = globalSettings.maxTokens || 4096;
+      document.getElementById('globalTimeout').value = globalSettings.timeout || 60;
+      document.getElementById('globalStream').checked = globalSettings.stream !== false;
+      if (globalSettings.systemPrompt) {
+        document.getElementById('globalSystemPrompt').value = globalSettings.systemPrompt;
+      }
+
+      renderProviders();
+    };
+  </script>
+</body>
+</html>

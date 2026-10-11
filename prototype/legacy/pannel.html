@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>综合看板 - Job Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#F4F5F9',
+              100: '#E6E8F2',
+              200: '#CDD1E4',
+              300: '#A7ADCf',
+              400: '#7E85B6',
+              500: '#5C629E',
+              600: '#484E88', // Core Soft Purple
+              700: '#3A3F70',
+              800: '#2E3258',
+              900: '#232643',
+              950: '#17192C'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    }
+    
+    .card-shadow-hover {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-shadow-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(72, 78, 136, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+
+    /* SVG Donut Chart Transition */
+    .donut-segment {
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke-width 0.2s ease;
+      cursor: pointer;
+    }
+    .donut-segment:hover {
+      stroke-width: 22;
+    }
+  </style>
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+  <aside class="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between p-5 z-10 shrink-0">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 px-2 mb-8">
+        <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-200">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-900 text-base leading-tight">JobAnalyzer</h1>
+          <p class="text-xs text-slate-400 font-medium">技能与能力导向求职助手</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1.5">
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-xl bg-brand-50 text-brand-600 text-sm font-semibold transition-colors">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-chart-pie w-5 text-brand-600"></i>
+            <span>综合看板</span>
+          </div>
+        </a>
+        <a href="job info.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-briefcase w-5 text-slate-400"></i>
+          <span>岗位信息</span>
+        </a>
+        <a href="per info.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-user-gear w-5 text-slate-400"></i>
+          <span>个人信息</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-sliders w-5 text-slate-400"></i>
+          <span>系统与设置</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Storage Badge -->
+    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+      <div class="flex items-center justify-between text-xs text-slate-500 mb-2 font-medium">
+        <span>本地缓存保护</span>
+        <span class="text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i> 隐私安全</span>
+      </div>
+      <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mb-2">
+        <div class="bg-brand-600 h-full w-1/4"></div>
+      </div>
+      <p class="text-[11px] text-slate-400">数据全量存储于本地浏览器</p>
+    </div>
+  </aside>
+
+  <main class="flex-1 overflow-y-auto bg-[#F8FAFC] px-8 py-6 space-y-6 relative">
+    
+    <!-- Top Header & Actions Section -->
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">综合看板</h2>
+        <p class="text-xs text-slate-500 mt-0.5">全景掌控目标岗位进度、匹配度多维分布及核心能力跃升路径</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Toast Notification Box -->
+        <div id="toastMessage" class="hidden text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-circle-check"></i>
+          <span id="toastText">数据已刷新</span>
+        </div>
+
+        <!-- 数据刷新按钮：尺寸放大，使用 #484E88 背景与白色文字 -->
+        <button onclick="refreshDashboardData()" class="px-4 py-2.5 bg-[#484E88] hover:bg-[#3A3F70] text-white text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center gap-2 border border-brand-500/30">
+          <i class="fa-solid fa-rotate text-white"></i>
+          <span>数据刷新</span>
+        </button>
+      </div>
+    </div>
+
+    <section class="bg-gradient-to-r from-brand-600 via-brand-800 to-brand-950 text-white rounded-2xl border border-brand-500/30 shadow-lg p-5 relative overflow-hidden">
+      <div class="absolute -left-10 -top-10 w-48 h-48 bg-brand-400/25 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white/10 relative z-10">
+        
+        <!-- Metric Item 1: Total Tracked Jobs -->
+        <div class="sm:pr-6 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold text-white tracking-wide">总关注岗位</span>
+            <div class="w-8 h-8 rounded-lg bg-white/10 text-amber-300 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-briefcase"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-1.5">
+              <span id="totalJobCount" class="text-3xl font-extrabold text-amber-400 tracking-tight">18</span>
+              <span class="text-xs text-slate-200 font-medium">项</span>
+            </div>
+            <!-- 时间维度拓展：近10天新增 +3 | 超过20天 5 -->
+            <div class="flex items-center gap-2 mt-1.5 text-[11px] font-medium">
+              <span class="text-amber-300/90 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-up-right"></i> 近10天新增 +3
+              </span>
+              <span class="text-white/30">|</span>
+              <span class="text-amber-200/80 flex items-center gap-1">
+                <i class="fa-regular fa-clock"></i> 超过20天 5
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Item 2: Average Match Score -->
+        <div class="sm:px-6 pt-4 sm:pt-0 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold text-white tracking-wide">平均综合匹配度</span>
+            <div class="w-8 h-8 rounded-lg bg-white/10 text-sky-300 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-bullseye"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-1">
+              <span id="avgMatchScore" class="text-3xl font-extrabold text-sky-400 tracking-tight">82.4%</span>
+            </div>
+            <span class="text-[11px] text-sky-300/90 font-medium inline-flex items-center gap-1 mt-1.5">
+              <i class="fa-solid fa-chart-line"></i> 处于良好匹配区间
+            </span>
+          </div>
+        </div>
+
+        <!-- Metric Item 3: Offer / Total Applied -->
+        <div class="sm:px-6 pt-4 sm:pt-0 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold text-white tracking-wide">Offer / 总投递</span>
+            <div class="w-8 h-8 rounded-lg bg-white/10 text-emerald-300 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-award"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-1">
+              <span id="activeConversionRate" class="text-3xl font-extrabold text-emerald-400 tracking-tight">7.7%</span>
+            </div>
+            <span class="text-[11px] text-emerald-300/90 font-medium inline-flex items-center gap-1 mt-1.5">
+              <i class="fa-solid fa-circle-check"></i> 1 个 Offer / 13 个已投递
+            </span>
+          </div>
+        </div>
+
+        <!-- Metric Item 4: Total Pending Gaps -->
+        <div class="sm:pl-6 pt-4 sm:pt-0 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold text-white tracking-wide">待提升项总量</span>
+            <div class="w-8 h-8 rounded-lg bg-white/10 text-amber-300 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-gauge-high"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-1.5">
+              <span id="pendingGapCount" class="text-3xl font-extrabold text-amber-400 tracking-tight">9</span>
+              <span class="text-xs text-slate-200 font-medium">项</span>
+            </div>
+            <span class="text-[11px] text-rose-300/90 font-medium inline-flex items-center gap-1 mt-1.5">
+              <i class="fa-solid fa-triangle-exclamation"></i> 包含 3 项高优先级短板
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Donut Chart 1: Job Status -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">岗位投递状态分布</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">各类流程推进阶段的岗位占比</p>
+          </div>
+          <div class="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 text-xs">
+            <i class="fa-solid fa-bars-progress"></i>
+          </div>
+        </div>
+
+        <!-- SVG Donut Chart Canvas Container -->
+        <div class="flex items-center justify-center my-1 relative">
+          <svg id="statusDonutSvg" width="205" height="205" viewBox="0 0 120 120" class="transform -rotate-90">
+            <!-- Dynamic SVG paths via JS -->
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span id="statusCenterTotal" class="text-2xl font-extrabold text-slate-900 leading-none">18</span>
+            <span class="text-[10px] text-slate-400 font-medium mt-1">岗位总数</span>
+          </div>
+        </div>
+
+        <!-- Legend List -->
+        <div id="statusLegendContainer" class="mt-2 pt-3 border-t border-slate-100 space-y-1.5 text-xs">
+          <!-- Dynamic Legends -->
+        </div>
+      </div>
+
+      <!-- Donut Chart 2: Job Category -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">岗位类型分布</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">目标技术方向分布与聚集度</p>
+          </div>
+          <div class="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 text-xs">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+        </div>
+
+        <!-- SVG Donut Chart Canvas Container -->
+        <div class="flex items-center justify-center my-1 relative">
+          <svg id="categoryDonutSvg" width="205" height="205" viewBox="0 0 120 120" class="transform -rotate-90">
+            <!-- Dynamic SVG paths via JS -->
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span id="categoryCenterTotal" class="text-2xl font-extrabold text-slate-900 leading-none">3</span>
+            <span class="text-[10px] text-slate-400 font-medium mt-1">涵盖类型</span>
+          </div>
+        </div>
+
+        <!-- Legend List -->
+        <div id="categoryLegendContainer" class="mt-2 pt-3 border-t border-slate-100 space-y-1.5 text-xs">
+          <!-- Dynamic Legends -->
+        </div>
+      </div>
+
+      <!-- Donut Chart 3: City Distribution -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">城市地区分布</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">工作意向地域分布覆盖</p>
+          </div>
+          <div class="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 text-xs">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+        </div>
+
+        <!-- SVG Donut Chart Canvas Container -->
+        <div class="flex items-center justify-center my-1 relative">
+          <svg id="cityDonutSvg" width="205" height="205" viewBox="0 0 120 120" class="transform -rotate-90">
+            <!-- Dynamic SVG paths via JS -->
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span id="cityCenterTotal" class="text-2xl font-extrabold text-slate-900 leading-none">3</span>
+            <span class="text-[10px] text-slate-400 font-medium mt-1">覆盖城市</span>
+          </div>
+        </div>
+
+        <!-- Legend List -->
+        <div id="cityLegendContainer" class="mt-2 pt-3 border-t border-slate-100 space-y-1.5 text-xs">
+          <!-- Dynamic Legends -->
+        </div>
+      </div>
+
+    </section>
+
+    <section class="bg-white p-6 rounded-2xl border border-slate-200/80 card-shadow space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-brand-600"></i>
+            <span>匹配度层级岗位数量统计</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">按综合匹配度分层划定的岗位聚集状态与重点关注企业</p>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs font-medium text-slate-500">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 90-100% (极高匹配)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 80-89% (良好匹配)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span> 70-79% (中等匹配)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> &lt;70% (较低/待提升)</span>
+        </div>
+      </div>
+
+      <!-- Match Score Horizontal Distribution Progress Stack -->
+      <div class="space-y-4">
+        <!-- Stack Bar Container -->
+        <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden flex p-0.5 gap-0.5">
+          <div style="width: 27.8%" class="bg-amber-500 h-full rounded-l-full transition-all duration-700" title="90-100%: 5 个岗位"></div>
+          <div style="width: 38.9%" class="bg-emerald-500 h-full transition-all duration-700" title="80-89%: 7 个岗位"></div>
+          <div style="width: 22.2%" class="bg-cyan-500 h-full transition-all duration-700" title="70-79%: 4 个岗位"></div>
+          <div style="width: 11.1%" class="bg-rose-500 h-full rounded-r-full transition-all duration-700" title="<70%: 2 个岗位"></div>
+        </div>
+
+        <!-- Match Score Tier Details Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+          
+          <!-- Tier 1 Card: 90%-100% -->
+          <div class="p-4 bg-amber-50/50 rounded-2xl border border-amber-200/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-800">90% - 100% 极高匹配</span>
+              <span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[11px] font-extrabold rounded-full">5 岗位</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-xl font-bold text-amber-600">27.8%</span>
+              <span class="text-xs text-amber-700/80 font-medium">占比</span>
+            </div>
+            <p class="text-[11px] text-amber-900/70 leading-relaxed border-t border-amber-200/50 pt-2">
+              典型代表：<strong class="font-semibold text-amber-900">MiniMax, 阿里云, 字节跳动</strong>
+            </p>
+          </div>
+
+          <!-- Tier 2 Card: 80%-89% -->
+          <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-800">80% - 89% 良好匹配</span>
+              <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[11px] font-extrabold rounded-full">7 岗位</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-xl font-bold text-emerald-600">38.9%</span>
+              <span class="text-xs text-emerald-700/80 font-medium">占比</span>
+            </div>
+            <p class="text-[11px] text-emerald-900/70 leading-relaxed border-t border-emerald-200/50 pt-2">
+              典型代表：<strong class="font-semibold text-emerald-900">智谱 AI, 百度, 商汤科技</strong>
+            </p>
+          </div>
+
+          <!-- Tier 3 Card: 70%-79% -->
+          <div class="p-4 bg-cyan-50/50 rounded-2xl border border-cyan-200/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-cyan-800">70% - 79% 中等匹配</span>
+              <span class="px-2 py-0.5 bg-cyan-100 text-cyan-800 text-[11px] font-extrabold rounded-full">4 岗位</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-xl font-bold text-cyan-600">22.2%</span>
+              <span class="text-xs text-cyan-700/80 font-medium">占比</span>
+            </div>
+            <p class="text-[11px] text-cyan-900/70 leading-relaxed border-t border-cyan-200/50 pt-2">
+              典型代表：<strong class="font-semibold text-cyan-900">美团, 微软中国, 理想汽车</strong>
+            </p>
+          </div>
+
+          <!-- Tier 4 Card: <70% -->
+          <div class="p-4 bg-rose-50/50 rounded-2xl border border-rose-200/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-800">&lt; 70% 需提升/低匹配</span>
+              <span class="px-2 py-0.5 bg-rose-100 text-rose-800 text-[11px] font-extrabold rounded-full">2 岗位</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-xl font-bold text-rose-600">11.1%</span>
+              <span class="text-xs text-rose-700/80 font-medium">占比</span>
+            </div>
+            <p class="text-[11px] text-rose-900/70 leading-relaxed border-t border-rose-200/50 pt-2">
+              典型代表：<strong class="font-semibold text-rose-900">腾讯 AI Lab, 深度求索</strong>
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-brand-600"></i>
+            <span>待学习技能与待提升能力</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">精准剖析目标岗位技术栈与工程力短板，分类规划提升路线</p>
+        </div>
+
+        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+          <button onclick="filterPriorityView('all')" id="prioTab-all" class="px-3 py-1 rounded-lg bg-white shadow-sm font-semibold text-slate-800 transition-all">全部项 (9)</button>
+          <button onclick="filterPriorityView('skill')" id="prioTab-skill" class="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition-all">仅看技能 (5)</button>
+          <button onclick="filterPriorityView('ability')" id="prioTab-ability" class="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition-all">仅看能力 (4)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Column 1: High Priority (高优先级) -->
+        <div class="bg-white rounded-2xl border border-rose-200/80 card-shadow flex flex-col overflow-hidden self-start">
+          <div onclick="togglePriorityGroup('high')" class="bg-rose-50/80 px-4 py-3 border-b border-rose-100 flex items-center justify-between cursor-pointer hover:bg-rose-100/60 transition-colors select-none">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+              <h4 class="font-bold text-sm text-rose-950">高优先级</h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-rose-700 bg-rose-100/80 px-2 py-0.5 rounded-md">3 项</span>
+              <i id="arrow-high" class="fa-solid fa-chevron-down text-rose-400 text-xs transition-transform duration-200"></i>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3.5 flex-1 hidden" id="container-high">
+            
+            <!-- Item 1 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="skill">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[10px] font-bold rounded">技能</span>
+                  C++ / CUDA 底层算子加速
+                </span>
+                <span class="text-[10px] text-rose-600 font-semibold bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">6 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">了解 GPU 显存分配机制，掌握 TensorRT / vLLM 推理加速框架开发与算子调优。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：学习 CUDA Programming 指南，通过 TensorRT 算子优化实战提升。
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="ability">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-cyan-100 text-cyan-700 text-[10px] font-bold rounded">能力</span>
+                  大模型首字延迟 (TTFT) 调优
+                </span>
+                <span class="text-[10px] text-rose-600 font-semibold bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">8 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">深入长文本 Chunk 动态切片与 SSE/WebSocket 实时流式响应编排能力。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：重构现有 RAG 系统，加入异步 Prefetch 与 Prompt 缓存压测。
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="skill">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[10px] font-bold rounded">技能</span>
+                  PyTorch 底层分布式并行训练
+                </span>
+                <span class="text-[10px] text-rose-600 font-semibold bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">3 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">理解 Megatron-LM 张量并行与 Pipeline 混合并行策略。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：阅读 DeepSpeed 与 Megatron 开源源码，掌握多卡通信调优。
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Column 2: Medium Priority (中等优先级) -->
+        <div class="bg-white rounded-2xl border border-amber-200/80 card-shadow flex flex-col overflow-hidden self-start">
+          <div onclick="togglePriorityGroup('medium')" class="bg-amber-50/80 px-4 py-3 border-b border-amber-100 flex items-center justify-between cursor-pointer hover:bg-amber-100/60 transition-colors select-none">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <h4 class="font-bold text-sm text-amber-950">中等优先级</h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-md">3 项</span>
+              <i id="arrow-medium" class="fa-solid fa-chevron-down text-amber-400 text-xs transition-transform duration-200"></i>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3.5 flex-1 hidden" id="container-medium">
+            
+            <!-- Item 1 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="skill">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[10px] font-bold rounded">技能</span>
+                  Flink / Spark 实时流计算
+                </span>
+                <span class="text-[10px] text-amber-600 font-semibold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">5 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">掌握 Flink State 状态管理与 Exact-Once 语义保障，解决数据倾斜问题。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：搭建 Flink 实时日志清洗与 LLM Token 实时统计 Demo。
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="ability">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-cyan-100 text-cyan-700 text-[10px] font-bold rounded">能力</span>
+                  千万级流量削峰与分布式锁
+                </span>
+                <span class="text-[10px] text-amber-600 font-semibold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">7 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">设计高可用 Redis 多级缓存与 Token Rate Limiter 限流中台组件。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：补充高并发 API 网关中的令牌桶与漏桶算法实战。
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="skill">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[10px] font-bold rounded">技能</span>
+                  ClickHouse 海量分析型数据库
+                </span>
+                <span class="text-[10px] text-amber-600 font-semibold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">4 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">掌握 ClickHouse 向量存储与 MergeTree 引擎列式索引优化。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：对比 Milvus、PGVector 与 ClickHouse 在大模型日志检索中的性能。
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Column 3: Low Priority (低优先级) -->
+        <div class="bg-white rounded-2xl border border-emerald-200/80 card-shadow flex flex-col overflow-hidden self-start">
+          <div onclick="togglePriorityGroup('low')" class="bg-emerald-50/80 px-4 py-3 border-b border-emerald-100 flex items-center justify-between cursor-pointer hover:bg-emerald-100/60 transition-colors select-none">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <h4 class="font-bold text-sm text-emerald-950">低优先级</h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">3 项</span>
+              <i id="arrow-low" class="fa-solid fa-chevron-down text-emerald-400 text-xs transition-transform duration-200"></i>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3.5 flex-1 hidden" id="container-low">
+            
+            <!-- Item 1 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="ability">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-cyan-100 text-cyan-700 text-[10px] font-bold rounded">能力</span>
+                  云原生 K8s Operator 自动化运维
+                </span>
+                <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">4 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">理解 GPU 集群多租户隔离与云原生弹性 Pod 扩缩容机制。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：掌握 Kubeflow 或 KubeRay 基础 Operator 部署配置。
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="skill">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[10px] font-bold rounded">技能</span>
+                  Go 语言微服务高性能扩展
+                </span>
+                <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">5 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">巩固 Go 协程池与 Gin/gRPC 微服务接口开发规范。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：将现有 Python 部分高性能路由重操为 Go 扩展。
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 priority-item" data-type="ability">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.5 bg-cyan-100 text-cyan-700 text-[10px] font-bold rounded">能力</span>
+                  Multi-Agent Graph 状态流编排
+                </span>
+                <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">12 岗位提及</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">已具备良好基础，持续跟进 LangGraph / AutoGen 动态图路由演进。</p>
+              <div class="text-[10px] text-slate-400 bg-white p-2 rounded-lg border border-slate-100">
+                💡 建议：保持优势，探索多 Agent 自动纠错与人机协同 Hook 逻辑。
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /**
+     * Data Source matching "岗位信息" module design standards & status specifications
+     */
+    const dashboardData = {
+      // Donut Chart 1: Job Status Distribution
+      statusData: [
+        { label: '未投递', count: 5, color: '#94A3B8', bgClass: 'bg-slate-400' },
+        { label: '已投递待回应', count: 4, color: '#EAB308', bgClass: 'bg-yellow-500' },
+        { label: '面试中', count: 5, color: '#06B6D4', bgClass: 'bg-cyan-500' },
+        { label: '已发Offer', count: 1, color: '#10B981', bgClass: 'bg-emerald-500' },
+        { label: '已被拒绝', count: 3, color: '#F43F5E', bgClass: 'bg-rose-500' }
+      ],
+
+      // Donut Chart 2: Job Category Distribution
+      categoryData: [
+        { label: '大模型应用开发', count: 9, color: '#06B6D4', bgClass: 'bg-cyan-500' },
+        { label: '后端架构师', count: 5, color: '#10B981', bgClass: 'bg-emerald-500' },
+        { label: '数据工程师', count: 4, color: '#F59E0B', bgClass: 'bg-amber-500' }
+      ],
+
+      // Donut Chart 3: City Distribution
+      cityData: [
+        { label: '北京', count: 8, color: '#06B6D4', bgClass: 'bg-cyan-500' },
+        { label: '上海', count: 6, color: '#10B981', bgClass: 'bg-emerald-500' },
+        { label: '深圳', count: 4, color: '#F59E0B', bgClass: 'bg-amber-500' }
+      ]
+    };
+
+    /**
+     * Pure SVG Donut Chart Renderer
+     */
+    function renderSvgDonut(svgId, legendId, centerTotalId, dataItems) {
+      const svgEl = document.getElementById(svgId);
+      const legendEl = document.getElementById(legendId);
+      const centerTotalEl = document.getElementById(centerTotalId);
+
+      const total = dataItems.reduce((sum, item) => sum + item.count, 0);
+      if (centerTotalEl) centerTotalEl.textContent = total;
+
+      const cx = 60;
+      const cy = 60;
+      const r = 47.5;
+      const circumference = 2 * Math.PI * r;
+
+      let currentOffset = 0;
+      let svgSegmentsHtml = '';
+      let legendHtml = '';
+
+      dataItems.forEach((item) => {
+        const percent = total > 0 ? (item.count / total) : 0;
+        const strokeLength = percent * circumference;
+        const spaceLength = circumference - strokeLength;
+        const offset = currentOffset;
+
+        currentOffset += strokeLength;
+
+        // SVG Path Segment
+        svgSegmentsHtml += `
+          <circle 
+            class="donut-segment" 
+            cx="${cx}" 
+            cy="${cy}" 
+            r="${r}" 
+            fill="transparent" 
+            stroke="${item.color}" 
+            stroke-width="17" 
+            stroke-dasharray="${strokeLength} ${spaceLength}" 
+            stroke-dashoffset="-${offset}"
+            data-label="${item.label}"
+            data-count="${item.count}"
+            data-percent="${(percent * 100).toFixed(1)}%"
+          >
+            <title>${item.label}: ${item.count}个 (${(percent * 100).toFixed(1)}%)</title>
+          </circle>
+        `;
+
+        // Legend Row
+        legendHtml += `
+          <div class="flex items-center justify-between text-slate-600 hover:text-slate-900 transition-colors">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full inline-block shrink-0" style="background-color: ${item.color}"></span>
+              <span class="font-medium">${item.label}</span>
+            </div>
+            <div class="flex items-center gap-2 font-semibold">
+              <span>${item.count} 岗</span>
+              <span class="text-[10px] text-slate-400 font-normal w-10 text-right">${(percent * 100).toFixed(0)}%</span>
+            </div>
+          </div>
+        `;
+      });
+
+      svgEl.innerHTML = svgSegmentsHtml;
+      legendEl.innerHTML = legendHtml;
+    }
+
+    /**
+     * Collapsible Priority Card Toggle Logic
+     */
+    function togglePriorityGroup(groupId) {
+      const container = document.getElementById(`container-${groupId}`);
+      const arrow = document.getElementById(`arrow-${groupId}`);
+      if (container) {
+        const isHidden = container.classList.contains('hidden');
+        if (isHidden) {
+          container.classList.remove('hidden');
+          if (arrow) arrow.style.transform = 'rotate(180deg)';
+        } else {
+          container.classList.add('hidden');
+          if (arrow) arrow.style.transform = 'rotate(0deg)';
+        }
+      }
+    }
+
+    /**
+     * Filter Priorities View (All / Skill / Ability)
+     */
+    function filterPriorityView(filterType) {
+      // Update Tab Buttons
+      const tabs = ['all', 'skill', 'ability'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`prioTab-${t}`);
+        if (t === filterType) {
+          btn.className = 'px-3 py-1 rounded-lg bg-white shadow-sm font-semibold text-slate-800 transition-all';
+        } else {
+          btn.className = 'px-3 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition-all';
+        }
+      });
+
+      // Show/Hide Items
+      const items = document.querySelectorAll('.priority-item');
+      items.forEach(item => {
+        const itemType = item.getAttribute('data-type');
+        if (filterType === 'all' || itemType === filterType) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    /**
+     * Action Handlers
+     */
+    function refreshDashboardData() {
+      renderAllCharts();
+      showToast('综合看板数据已成功同步');
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toastMessage');
+      document.getElementById('toastText').textContent = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    function renderAllCharts() {
+      // 1. Donut Chart - Application Status
+      renderSvgDonut(
+        'statusDonutSvg',
+        'statusLegendContainer',
+        'statusCenterTotal',
+        dashboardData.statusData
+      );
+
+      // 2. Donut Chart - Job Category
+      renderSvgDonut(
+        'categoryDonutSvg',
+        'categoryLegendContainer',
+        'categoryCenterTotal',
+        dashboardData.categoryData
+      );
+
+      // 3. Donut Chart - Cities
+      renderSvgDonut(
+        'cityDonutSvg',
+        'cityLegendContainer',
+        'cityCenterTotal',
+        dashboardData.cityData
+      );
+    }
+
+    /* Initializer on Page Load */
+    window.onload = function() {
+      renderAllCharts();
+    };
+  </script>
+
+</body>
+</html>

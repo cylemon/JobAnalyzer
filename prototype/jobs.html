@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>岗位信息管理 - Job Analyzer</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/tailwind.config.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+  <!-- 左侧导航：由 layout.js 统一渲染，data-nav 指定当前高亮项 -->
+  <aside id="sidebar" data-nav="jobs" class="sidebar"></aside>
+
+  <!-- 右侧主工作区 -->
+  <main class="page-shell">
+    <div class="page-sticky">
+
+      <!-- 页头 -->
+      <header class="page-header">
+        <div>
+          <h2 class="page-title">岗位信息管理</h2>
+          <p class="page-subtitle">按岗位分类归集目标岗位，基于本地算法实时计算综合匹配度</p>
+        </div>
+
+        <div class="page-actions" id="pageActions">
+          <button type="button" class="btn btn-primary" data-action="job:open-ingestion">
+            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+            <span>岗位录入</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- 搜索与筛选条 -->
+      <section class="hero p-4">
+        <div class="hero-glow"></div>
+
+        <div class="hero-inner flex flex-wrap items-center justify-between gap-4">
+
+          <div class="flex flex-wrap items-center gap-3.5">
+
+            <div class="relative w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-200 text-xs"></i>
+              <input type="text" id="searchInput" class="filter-control filter-input w-full"
+                     data-input="job:apply-filter" placeholder="搜索公司、职位或业务...">
+            </div>
+
+            <div class="relative">
+              <select id="categorySelect" class="filter-control filter-select" data-change="job:apply-filter"></select>
+              <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+            </div>
+
+            <div class="relative">
+              <select id="citySelect" class="filter-control filter-select" data-change="job:apply-filter"></select>
+              <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+            </div>
+
+            <div class="relative">
+              <select id="statusSelect" class="filter-control filter-select" data-change="job:apply-filter"></select>
+              <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+            </div>
+
+            <!-- 选中具体分类后才显示 -->
+            <button type="button" id="categoryAnalysisBtn" data-action="job:open-analysis"
+                    class="hidden h-[38px] px-4 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 active:scale-95 text-white font-semibold text-xs md:text-sm rounded-xl border border-brand-300/40 shadow-sm hover:shadow-indigo-500/20 transition-all cursor-pointer inline-flex items-center justify-center gap-2 shrink-0 leading-none text-center">
+              <i class="fa-solid fa-chart-radar text-xs text-brand-100 shrink-0"></i>
+              <span class="font-medium text-center leading-none">综合分析</span>
+            </button>
+
+          </div>
+
+          <div class="flex items-center gap-2 text-xs md:text-sm">
+            <span class="text-brand-100 font-medium">排序规则:</span>
+            <div class="flex items-center gap-1.5">
+              <div class="relative">
+                <select id="sortSelect" class="filter-control filter-select font-semibold text-brand-100" data-change="job:apply-filter">
+                  <option value="composite" class="bg-slate-900 text-slate-100">综合匹配度</option>
+                  <option value="createdAt" class="bg-slate-900 text-slate-100">已录入天数</option>
+                  <option value="minSalary" class="bg-slate-900 text-slate-100">最低薪资</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+              </div>
+
+              <button type="button" id="sortOrderBtn" class="filter-control px-3.5 inline-flex items-center justify-center gap-1.5 bg-brand-950/90 hover:bg-brand-900"
+                      data-action="job:toggle-sort-order" title="切换升降序">
+                <i id="sortOrderIcon" class="fa-solid fa-arrow-down-wide-short text-xs md:text-sm"></i>
+                <span id="sortOrderText">降序</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <div class="page-body">
+      <section id="jobListContainer" class="space-y-4"></section>
+    </div>
+  </main>
+
+  <!-- 深度分析抽屉 -->
+  <div id="detailDrawer" class="modal is-drawer">
+    <div class="modal-panel is-drawer">
+
+      <div class="modal-head justify-end">
+        <button type="button" class="modal-close" data-action="ui:close-modal" data-target="detailDrawer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body gap-6">
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="subsection-title">技能要求对比</h4>
+            <span class="text-xs text-slate-400 font-medium">硬性技术栈 &amp; 熟练度</span>
+          </div>
+          <div id="analysisSkillList" class="space-y-3"></div>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <div class="flex items-center justify-between">
+            <h4 class="subsection-title">能力要求对比</h4>
+            <span class="text-xs text-slate-400 font-medium">架构设计 / 调优 / 综合工程力</span>
+          </div>
+          <div id="analysisAbilityList" class="space-y-3"></div>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <div class="flex items-center justify-between">
+            <h4 class="subsection-title">经验要求对比</h4>
+            <span class="text-xs text-slate-400 font-medium">年限履历 / 业务场景匹配</span>
+          </div>
+          <div id="analysisExpList" class="space-y-3"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 综合分析弹窗 -->
+  <div id="categoryAnalysisModal" class="modal">
+    <div class="modal-panel modal-4xl">
+
+      <div class="modal-head">
+        <div>
+          <h3 id="categoryAnalysisTitle" class="modal-title"></h3>
+          <p class="modal-desc">汇总当前类型下所有岗位的技能/能力/经验分布，对比个人能力并给出提升建议</p>
+        </div>
+        <button type="button" class="modal-close" data-action="ui:close-modal" data-target="categoryAnalysisModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body gap-6">
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="subsection-title">岗位要求 vs 个人能力多维象限图</h4>
+            <div class="flex items-center gap-4 text-xs font-semibold">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cyan-500/30 border border-cyan-600 inline-block"></span> 岗位平均要求</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-600 inline-block"></span> 我的当前匹配</span>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 card-shadow">
+            <div class="w-full flex justify-center items-center py-2">
+              <div id="radarChartContainer" class="w-full max-w-2xl h-80 relative flex justify-center items-center"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="subsection-title">针对性提升建议与成长路线</h4>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow space-y-3">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-route text-violet-600 text-sm"></i>
+                <h5 class="font-bold text-sm text-slate-900">技能学习路线</h5>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">基于岗位技术栈缺口与急迫度规划的具体学习路径：</p>
+              <div id="skillRoadmapContainer" class="space-y-3 text-xs pt-1"></div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow space-y-3">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project text-cyan-600 text-sm"></i>
+                <h5 class="font-bold text-sm text-slate-900">能力提升路径</h5>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">强化综合工程落地能力与架构思想的演进步骤：</p>
+              <div id="abilityRoadmapContainer" class="space-y-3 text-xs pt-1"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 岗位录入弹窗 -->
+  <div id="ingestionModal" class="modal">
+    <div class="modal-panel modal-2xl">
+
+      <div class="modal-head">
+        <div>
+          <h3 class="modal-title">岗位录入</h3>
+          <p class="modal-desc">支持通过粘贴文本与上传截图录入单个岗位，系统将自动解析</p>
+        </div>
+        <button type="button" class="modal-close" data-action="ui:close-modal" data-target="ingestionModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="form-label mb-0" for="modalCategorySelect">目标岗位分类</label>
+            <button type="button" class="text-xs text-brand-600 hover:text-brand-700 font-semibold flex items-center gap-1"
+                    data-action="job:open-add-category">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>新增分类</span>
+            </button>
+          </div>
+          <select id="modalCategorySelect" class="form-select"></select>
+        </div>
+
+        <div>
+          <label class="form-label" for="ingestionText">粘贴 JD 文本 (多条用空行分隔)</label>
+          <textarea id="ingestionText" rows="4" class="form-textarea form-mono" placeholder="粘贴招聘文本信息..."></textarea>
+        </div>
+
+        <div>
+          <label class="form-label">上传 JD 截图</label>
+          <div class="border-2 border-dashed border-slate-200 hover:border-brand-400 rounded-2xl p-4 text-center cursor-pointer bg-slate-50 hover:bg-brand-50/30 transition-all">
+            <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-2xl mb-1"></i>
+            <p class="text-xs text-slate-600 font-medium">点击或拖拽上传岗位截图</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">支持 PNG, JPG 等常用格式图片</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" data-action="ui:close-modal" data-target="ingestionModal">取消</button>
+        <button type="button" class="btn btn-primary" data-action="job:submit-ingestion">
+          <i class="fa-solid fa-bolt text-xs"></i>
+          <span>解析并录入</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增岗位类别（二级弹窗，盖在录入弹窗之上） -->
+  <div id="addCategoryModal" class="modal is-stacked">
+    <div class="modal-panel modal-sm">
+
+      <div class="modal-head">
+        <h4 class="modal-title">添加岗位类别</h4>
+        <button type="button" class="modal-close" data-action="ui:close-modal" data-target="addCategoryModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div>
+          <label class="form-label" for="newCategoryInput">类别名称</label>
+          <input type="text" id="newCategoryInput" class="form-input" placeholder="如: 全栈架构师">
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary btn-sm" data-action="ui:close-modal" data-target="addCategoryModal">取消</button>
+        <button type="button" class="btn btn-primary btn-sm" data-action="job:submit-category">保存类别</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/data/jobs.data.js"></script>
+  <script src="assets/js/pages/jobs.page.js"></script>
+</body>
+</html>

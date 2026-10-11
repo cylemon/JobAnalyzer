@@ -1,0 +1,67 @@
+/* ==========================================================================
+   dashboard.css —— 综合看板专属样式
+   ========================================================================== */
+
+/* 环形图分段：渲染后描边生长过渡 + 悬停加粗 */
+.donut-segment {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke-width 0.2s ease;
+  cursor: pointer;
+}
+.donut-segment:hover {
+  stroke-width: 22;
+}
+
+/* 环形图中心数字 */
+.donut-center-value {
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 800;
+  color: #0F172A;
+}
+.donut-center-label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: #94A3B8;
+  margin-top: 0.25rem;
+}
+
+/* 匹配度分层堆叠条 */
+.tier-bar {
+  width: 100%;
+  height: 1rem;
+  padding: 0.125rem;
+  gap: 0.125rem;
+  display: flex;
+  border-radius: 9999px;
+  background-color: #F1F5F9;
+  overflow: hidden;
+}
+.tier-bar > span {
+  height: 100%;
+  transition: all 0.7s;
+}
+
+/* 待提升项折叠分组 */
+.priority-group {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-self: flex-start;
+}
+.priority-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  /* 颜色由 theme.gapPriority[].groupHead 提供 */
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.15s;
+}
+.priority-item-card {
+  background-color: #F8FAFC;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 0.75rem;
+  padding: 0.875rem;
+}

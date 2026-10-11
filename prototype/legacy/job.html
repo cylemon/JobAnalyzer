@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>岗位信息管理 - Job Analyzer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#F4F5F9',
+              100: '#E6E8F2',
+              200: '#CDD1E4',
+              300: '#A7ADCf',
+              400: '#7E85B6',
+              500: '#5C629E',
+              600: '#484E88', // Core Soft Purple
+              700: '#3A3F70',
+              800: '#2E3258',
+              900: '#232643',
+              950: '#17192C'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    }
+    
+    .card-shadow-hover {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-shadow-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(72, 78, 136, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+  <!-- Block 1: Left Navigation Sidebar -->
+  <aside class="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between p-5 z-10 shrink-0">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 px-2 mb-8">
+        <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-200">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-900 text-base leading-tight">JobAnalyzer</h1>
+          <p class="text-xs text-slate-400 font-medium">技能与能力导向求职助手</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1.5">
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-chart-pie w-5 text-slate-400"></i>
+          <span>综合看板</span>
+        </a>
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-xl bg-brand-50 text-brand-600 text-sm font-semibold transition-colors">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-briefcase w-5 text-brand-600"></i>
+            <span>岗位信息</span>
+          </div>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-user-gear w-5 text-slate-400"></i>
+          <span>个人信息</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-sliders w-5 text-slate-400"></i>
+          <span>系统与设置</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Storage Badge -->
+    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 flex items-center justify-between text-xs">
+      <span class="flex items-center gap-1.5 text-slate-800 font-semibold">
+        <i class="fa-solid fa-hard-drive text-brand-600"></i>
+        <span>纯本地存储</span>
+      </span>
+      <span class="text-emerald-600 font-semibold flex items-center gap-1 text-[11px]">
+        <i class="fa-solid fa-shield-halved"></i> 隐私安全
+      </span>
+    </div>
+  </aside>
+
+  <!-- Block 2: Right Main Workspace (Unified Scrollable Container) -->
+  <main class="flex-1 overflow-y-auto bg-[#F8FAFC] px-8 py-6 space-y-6 relative">
+    
+    <!-- Combined Sticky Header & Filter Section -->
+    <div class="sticky -top-6 -mt-6 -mx-8 px-8 pt-6 pb-2 bg-[#F8FAFC] z-20 space-y-5">
+      
+      <!-- Workspace Title Bar Section -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">岗位信息管理</h2>
+          <p class="text-xs text-slate-500 mt-0.5">按岗位分类归集目标岗位，基于本地算法实时计算综合匹配度</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Toast Notification Box -->
+          <div id="toastMessage" class="hidden text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toastText">操作成功</span>
+          </div>
+
+          <button onclick="openIngestionModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-brand-200 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+            <span>岗位录入</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search & Filter Bar Section -->
+      <section class="bg-gradient-to-r from-brand-600 via-brand-800 to-brand-950 rounded-2xl p-4 border border-brand-500/30 shadow-lg text-white relative overflow-hidden">
+        <div class="absolute -left-10 -top-10 w-48 h-48 bg-brand-400/25 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 relative z-10">
+          
+          <!-- Filters Group -->
+          <div class="flex flex-wrap items-center gap-3.5">
+            
+            <!-- Search Box -->
+            <div class="relative w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-200 text-xs"></i>
+              <input type="text" id="searchInput" oninput="applyFilters()" placeholder="搜索公司、职位或业务..." class="w-full h-[38px] pl-9 pr-3 bg-brand-950/70 hover:bg-brand-950/90 focus:bg-brand-950 border border-brand-300/30 rounded-xl text-xs md:text-sm text-white placeholder-brand-200/60 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:border-brand-300 transition-all">
+            </div>
+
+            <!-- Job Category Selector -->
+            <div class="relative">
+              <select id="categorySelect" onchange="applyFilters()" class="h-[38px] pl-3.5 pr-8 bg-brand-950/70 hover:bg-brand-950/90 border border-brand-300/30 rounded-xl text-xs md:text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-brand-300 cursor-pointer appearance-none transition-all">
+                <option value="all" class="bg-slate-900 text-slate-100">所有岗位分类</option>
+                <option value="agent" class="bg-slate-900 text-slate-100">大模型应用开发</option>
+                <option value="backend" class="bg-slate-900 text-slate-100">后端架构师</option>
+                <option value="data" class="bg-slate-900 text-slate-100">数据工程师</option>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+            </div>
+
+            <!-- City Selector -->
+            <div class="relative">
+              <select id="citySelect" onchange="applyFilters()" class="h-[38px] pl-3.5 pr-8 bg-brand-950/70 hover:bg-brand-950/90 border border-brand-300/30 rounded-xl text-xs md:text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-brand-300 cursor-pointer appearance-none transition-all">
+                <option value="all" class="bg-slate-900 text-slate-100">所有城市</option>
+                <option value="北京" class="bg-slate-900 text-slate-100">北京</option>
+                <option value="上海" class="bg-slate-900 text-slate-100">上海</option>
+                <option value="深圳" class="bg-slate-900 text-slate-100">深圳</option>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+            </div>
+
+            <!-- Application Status Selector -->
+            <div class="relative">
+              <select id="statusSelect" onchange="applyFilters()" class="h-[38px] pl-3.5 pr-8 bg-brand-950/70 hover:bg-brand-950/90 border border-brand-300/30 rounded-xl text-xs md:text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-brand-300 cursor-pointer appearance-none transition-all">
+                <option value="all" class="bg-slate-900 text-slate-100">所有状态</option>
+                <option value="未投递" class="bg-slate-900 text-slate-100">未投递</option>
+                <option value="已投递待回应" class="bg-slate-900 text-slate-100">已投递待回应</option>
+                <option value="面试中" class="bg-slate-900 text-slate-100">面试中</option>
+                <option value="已发Offer" class="bg-slate-900 text-slate-100">已发Offer</option>
+                <option value="已被拒绝" class="bg-slate-900 text-slate-100">已被拒绝</option>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+            </div>
+
+            <!-- Perfectly Centered Category Analysis Button -->
+            <button id="categoryAnalysisBtn" onclick="openCategoryAnalysisModal()" class="hidden h-[38px] px-4 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 active:scale-95 text-white font-semibold text-xs md:text-sm rounded-xl border border-brand-300/40 shadow-sm hover:shadow-indigo-500/20 transition-all cursor-pointer inline-flex items-center justify-center gap-2 shrink-0 leading-none text-center">
+              <i class="fa-solid fa-chart-radar text-xs text-brand-100 shrink-0"></i>
+              <span class="font-medium text-center leading-none">综合分析</span>
+            </button>
+
+          </div>
+
+          <!-- Sort Rule Selector & Order Toggle -->
+          <div class="flex items-center gap-2 text-xs md:text-sm">
+            <span class="text-brand-100 font-medium">排序规则:</span>
+            <div class="flex items-center gap-1.5">
+              <div class="relative">
+                <select id="sortSelect" onchange="applyFilters()" class="h-[38px] pl-3.5 pr-8 bg-brand-950/90 border border-brand-400/40 rounded-xl text-xs md:text-sm font-semibold text-brand-100 focus:outline-none focus:ring-2 focus:ring-brand-300 cursor-pointer appearance-none transition-all">
+                  <option value="composite" class="bg-slate-900 text-slate-100">综合匹配度</option>
+                  <option value="createdAt" class="bg-slate-900 text-slate-100">已录入天数</option>
+                  <option value="minSalary" class="bg-slate-900 text-slate-100">最低薪资</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-brand-200 text-[10px] pointer-events-none"></i>
+              </div>
+
+              <!-- Order Toggle Button aligned with select controls -->
+              <button id="sortOrderBtn" onclick="toggleSortOrder()" type="button" title="切换升降序" class="h-[38px] px-3.5 bg-brand-950/90 hover:bg-brand-900 border border-brand-400/40 rounded-xl text-brand-100 text-xs md:text-sm font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <i id="sortOrderIcon" class="fa-solid fa-arrow-down-wide-short text-xs md:text-sm"></i>
+                <span id="sortOrderText">降序</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Vertical Job Cards Stream Container -->
+    <section id="jobListContainer" class="space-y-4">
+      <!-- Dynamic Job Cards Rendered via JavaScript -->
+    </section>
+
+  </main>
+
+  <!-- Job Detail Drawer (深度分析) -->
+  <div id="detailDrawer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex justify-end transition-opacity">
+    <div class="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col justify-between overflow-hidden">
+      
+      <!-- Drawer Header -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-end bg-white">
+        <button onclick="closeDetailDrawer()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Drawer Body -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+        <!-- 1. Skill Requirements vs Current User Skills -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between border-l-4 border-brand-600 pl-2.5">
+            <h4 class="font-bold text-sm text-slate-900">技能要求对比</h4>
+            <span class="text-xs text-slate-400 font-medium">硬性技术栈 & 熟练度</span>
+          </div>
+          
+          <div id="analysisSkillList" class="space-y-3">
+            <!-- Dynamic Comparative Cards -->
+          </div>
+        </div>
+
+        <!-- 2. Ability Requirements vs Current User Abilities -->
+        <div class="space-y-3 pt-2">
+          <div class="flex items-center justify-between border-l-4 border-brand-600 pl-2.5">
+            <h4 class="font-bold text-sm text-slate-900">能力要求对比</h4>
+            <span class="text-xs text-slate-400 font-medium">架构设计 / 调优 / 综合工程力</span>
+          </div>
+
+          <div id="analysisAbilityList" class="space-y-3">
+            <!-- Dynamic Comparative Cards -->
+          </div>
+        </div>
+
+        <!-- 3. Experience Requirements vs Current User Experiences -->
+        <div class="space-y-3 pt-2">
+          <div class="flex items-center justify-between border-l-4 border-brand-600 pl-2.5">
+            <h4 class="font-bold text-sm text-slate-900">经验要求对比</h4>
+            <span class="text-xs text-slate-400 font-medium">年限履历 / 业务场景匹配</span>
+          </div>
+
+          <div id="analysisExpList" class="space-y-3">
+            <!-- Dynamic Comparative Cards -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Category Analysis Modal (岗位类型综合分析) -->
+  <div id="categoryAnalysisModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-white">
+        <div>
+          <h3 id="categoryAnalysisTitle" class="font-bold text-base text-slate-900">大模型应用开发 - 综合分析看板</h3>
+          <p class="text-xs text-slate-400 mt-0.5">汇总当前类型下所有岗位的技能/能力/经验分布，对比个人能力并给出提升建议</p>
+        </div>
+        <button onclick="closeCategoryAnalysisModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        
+        <!-- Multi-dimensional Radar Quadrant Chart Section -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-sm text-slate-900 border-l-4 border-brand-600 pl-2.5">岗位要求 vs 个人能力多维象限图</h4>
+            <div class="flex items-center gap-4 text-xs font-semibold">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cyan-500/30 border border-cyan-600 inline-block"></span> 岗位平均要求</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-600 inline-block"></span> 我的当前匹配</span>
+            </div>
+          </div>
+
+          <!-- White Background Chart Container Box -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 card-shadow">
+            <div class="w-full flex justify-center items-center py-2">
+              <div id="radarChartContainer" class="w-full max-w-2xl h-80 relative flex justify-center items-center">
+                <!-- Dynamically rendered SVG Radar Chart -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Actionable Growth Roadmap & Improvement Guidance -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-sm text-slate-900 border-l-4 border-brand-600 pl-2.5">针对性提升建议与成长路线</h4>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Skill Learning Roadmap Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow space-y-3">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-route text-violet-600 text-sm"></i>
+                <h5 class="font-bold text-sm text-slate-900">技能学习路线</h5>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">基于岗位技术栈缺口与急迫度规划的具体学习路径：</p>
+              
+              <div id="skillRoadmapContainer" class="space-y-3 text-xs pt-1">
+                <!-- Dynamic Skill Roadmap Nodes -->
+              </div>
+            </div>
+
+            <!-- Capability Improvement Pathway Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow space-y-3">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project text-cyan-600 text-sm"></i>
+                <h5 class="font-bold text-sm text-slate-900">能力提升路径</h5>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">强化综合工程落地能力与架构思想的演进步骤：</p>
+
+              <div id="abilityRoadmapContainer" class="space-y-3 text-xs pt-1">
+                <!-- Dynamic Capability Roadmap Nodes -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Ingestion Modal (岗位录入对话框 - 包含单岗位录入、二级添加分类、拖拽截图区) -->
+  <div id="ingestionModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="font-bold text-base text-slate-900">岗位录入</h3>
+          <p class="text-xs text-slate-400 mt-0.5">支持通过粘贴文本与上传截图录入单个岗位，系统将自动解析</p>
+        </div>
+        <button onclick="closeIngestionModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="font-semibold text-slate-700 block">目标岗位分类</label>
+            <button type="button" onclick="openAddCategoryModal()" class="text-brand-600 hover:text-brand-700 font-semibold flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>新增分类</span>
+            </button>
+          </div>
+          <select id="modalCategorySelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-brand-500">
+            <option value="agent">大模型应用开发</option>
+            <option value="backend">后端架构师</option>
+            <option value="data">数据工程师</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">粘贴 JD 文本 (多条用空行分隔)</label>
+          <textarea rows="4" placeholder="粘贴招聘文本信息..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-mono text-xs"></textarea>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">上传 JD 截图</label>
+          <div class="border-2 border-dashed border-slate-200 hover:border-brand-400 rounded-2xl p-4 text-center cursor-pointer bg-slate-50 hover:bg-brand-50/30 transition-all">
+            <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-2xl mb-1"></i>
+            <p class="text-xs text-slate-600 font-medium">点击或拖拽上传岗位截图</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">支持 PNG, JPG 等常用格式图片</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-3">
+        <button onclick="closeIngestionModal()" class="px-4 py-2 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50">
+          取消
+        </button>
+        <button onclick="submitIngestion()" class="px-4 py-2 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 shadow-md shadow-brand-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-bolt text-xs"></i>
+          <span>解析并录入</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Modal: Add Category (新增分类二级弹窗) -->
+  <div id="addCategoryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+        <h4 class="font-bold text-sm text-slate-900">添加岗位类别</h4>
+        <button onclick="closeAddCategoryModal()" class="text-slate-400 hover:text-slate-600 text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-slate-700 block mb-1">类别名称</label>
+          <input type="text" id="newCategoryInput" placeholder="如: 全栈架构师" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-brand-500">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button onclick="closeAddCategoryModal()" class="px-3.5 py-1.5 border border-slate-200 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-50">
+          取消
+        </button>
+        <button onclick="submitNewCategory()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-brand-200">
+          保存类别
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-slate-900">确定要删除该岗位吗？</h4>
+          <p class="text-xs text-slate-500 mt-0.5">此操作无法撤销，岗位信息将从本地缓存移除。</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button onclick="closeDeleteConfirmModal()" class="px-3.5 py-1.5 border border-slate-200 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-colors">
+          取消
+        </button>
+        <button onclick="executeDeleteJob()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-rose-200 transition-colors">
+          确认删除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    /* Category Name Mapping */
+    const categoryNameMap = {
+      'agent': '大模型应用开发',
+      'backend': '后端架构师',
+      'data': '数据工程师'
+    };
+
+    /* Sorting Order State: 'desc' or 'asc' */
+    let currentSortOrder = 'desc';
+
+    /* Helper: Calculate days elapsed since ingestion */
+    function calculateDaysAgo(dateString) {
+      if (!dateString) return 0;
+      const created = new Date(dateString);
+      const today = new Date();
+      created.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      const diffTime = today.getTime() - created.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 ? diffDays : 0;
+    }
+
+    /* Helper: Get color badge style according to days elapsed (matching composite match score palette) */
+    function getDaysAgoStyle(days) {
+      if (days <= 10) {
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      } else if (days <= 20) {
+        return 'bg-yellow-50 text-yellow-700 border-yellow-300';
+      } else {
+        return 'bg-rose-50 text-rose-700 border-rose-200';
+      }
+    }
+
+    /* Dataset with structured itemized requirement and user state breakdowns */
+    let jobData = [
+      {
+        id: 1,
+        title: '高级 AI Agent 研发工程师',
+        salary: '35k - 50k · 16薪',
+        salaryMin: 35,
+        salaryMax: 50,
+        company: '智谱 AI 创新实验室',
+        category: 'agent',
+        city: '北京',
+        district: '海淀区',
+        businessType: 'C端大模型 Agent 智能体链',
+        status: '面试中',
+        createdAt: '2026-10-02',
+        url: 'https://example.com/job/1',
+        matchSkill: 85,
+        matchAbility: 90,
+        matchExp: 80,
+        skills: [
+          { name: 'Python / FastAPI 微服务', req: '熟练掌握高并发异步框架，拥有线上服务压测调优经验', user: '掌握，具备 2 年 FastAPI 高并发项目实际开发经验', status: 'match' },
+          { name: 'LangChain / LlamaIndex 编排', req: '深入理解 Agent 多工具调用与 RAG 向量检索逻辑', user: '精通，曾独立搭建企业级 RAG 知识库检索系统', status: 'match' },
+          { name: 'C++ / CUDA 底层算子加速', req: '掌握 GPU 内存优化及 TensorRT/vLLM 推理加速', user: '仅了解基础 C++ 语法，无 CUDA 算子开发实践', status: 'gap' }
+        ],
+        abilities: [
+          { name: '复杂 AI Agent 架构设计能力', req: '能够针对多步骤复杂任务设计分发与容错编排机制', user: '完全具备，成功设计过 Multi-Agent 多智能体协作引擎', status: 'match' },
+          { name: '大模型低延迟响应调优', req: '熟练处理长文本 Chunk 流式输出与首字延迟 (TTFT) 优化', user: '基本符合，熟悉 SSE 协议与流式推送', status: 'partial' }
+        ],
+        experiences: [
+          { name: '大模型应用落地经验', req: '具备 2 年以上生产环境大模型 Agent 研发经验', user: '符合（2.0 年商业化 AI 项目经验）', status: 'match' },
+          { name: '千万级用户高并发交付', req: '拥有日活 100w+ 产品的后端稳定运维履历', user: '尚缺，之前项目日活在 10w+ 量级', status: 'gap' }
+        ]
+      },
+      {
+        id: 2,
+        title: 'LLM 架构应用工程师',
+        salary: '40k - 65k · 15薪',
+        salaryMin: 40,
+        salaryMax: 65,
+        company: 'MiniMax 稀宇科技',
+        category: 'agent',
+        city: '上海',
+        district: '徐汇区',
+        businessType: '通用大模型基础应用平台',
+        status: '未投递',
+        createdAt: '2026-10-04',
+        url: 'https://example.com/job/2',
+        matchSkill: 100,
+        matchAbility: 100,
+        matchExp: 100,
+        skills: [
+          { name: 'Python / Go 微服务架构', req: '精通 Python 高性能开发，熟悉 Go 语言扩展', user: '精通 Python & FastAPI，熟练编写 Go 语言微服务', status: 'match' },
+          { name: 'Prompt & RAG 深度调优', req: '精通 Prompt 工程与高准确率向量切片分块', user: '精通，具备丰富的向量检索评估调优经验', status: 'match' }
+        ],
+        abilities: [
+          { name: '大模型中间件抽象能力', req: '能抽象统一的 Model API 网关与 Rate Limit 模块', user: '完全具备，曾主导统一 LLM 路由网关设计', status: 'match' }
+        ],
+        experiences: [
+          { name: '大模型系统开发年限', req: '具备 2 年以上相关研发经验', user: '完全符合（2 年工作经验）', status: 'match' }
+        ]
+      },
+      {
+        id: 3,
+        title: '大模型应用后端开发',
+        salary: '28k - 42k · 15薪',
+        salaryMin: 28,
+        salaryMax: 42,
+        company: '百度 AI 体系',
+        category: 'agent',
+        city: '北京',
+        district: '海淀区',
+        businessType: '智能搜索与生成式 API 中台',
+        status: '已投递待回应',
+        createdAt: '2026-09-28',
+        url: 'https://example.com/job/3',
+        matchSkill: 78,
+        matchAbility: 82,
+        matchExp: 75,
+        skills: [
+          { name: 'Python / Django / FastAPI', req: '精通 Web 开发框架与 ORM 性能调优', user: '掌握 FastAPI，熟练应对数据库索引调优', status: 'match' },
+          { name: 'ElasticSearch / ClickHouse', req: '熟练掌握海量数据实时搜索与分析', user: '熟悉 ES 基本检索，ClickHouse 处于入门阶段', status: 'partial' }
+        ],
+        abilities: [
+          { name: '高可用高并发架构设计', req: '具备高并发流量削峰与分布式锁控制能力', user: '基本具备，有 Redis 分布式锁落地实践', status: 'match' }
+        ],
+        experiences: [
+          { name: '互联网中台研发经验', req: '3 年以上后端开发经验', user: '拥有 2 年经验，略微欠缺 1 年', status: 'partial' }
+        ]
+      },
+      {
+        id: 4,
+        title: '云原生 K8s 部署专家',
+        salary: '45k - 70k · 16薪',
+        salaryMin: 45,
+        salaryMax: 70,
+        company: '阿里云基础架构',
+        category: 'backend',
+        city: '北京',
+        district: '朝阳区',
+        businessType: '云原生高并发基础设施',
+        status: '面试中',
+        createdAt: '2026-10-01',
+        url: 'https://example.com/job/4',
+        matchSkill: 92,
+        matchAbility: 95,
+        matchExp: 90,
+        skills: [
+          { name: 'Docker & Kubernetes', req: '精通 K8s Operator 编写与 CNI 网络插件', user: '精通容器化部署与集群日常运维调优', status: 'match' }
+        ],
+        abilities: [
+          { name: '云原生架构解耦能力', req: '具备大规模云原生服务拆分与治理能力', user: '精通微服务治理', status: 'match' }
+        ],
+        experiences: [
+          { name: '云计算平台开发经验', req: '3 年以上底层基础设施经验', user: '2.5 年经验，基本吻合', status: 'match' }
+        ]
+      },
+      {
+        id: 5,
+        title: '分布式实时计算工程师',
+        salary: '30k - 50k · 15薪',
+        salaryMin: 30,
+        salaryMax: 50,
+        company: '美团大数据平台',
+        category: 'data',
+        city: '上海',
+        district: '杨浦区',
+        businessType: '实时外卖履约计算引擎',
+        status: '已发Offer',
+        createdAt: '2026-09-20',
+        url: 'https://example.com/job/5',
+        matchSkill: 68,
+        matchAbility: 65,
+        matchExp: 62,
+        skills: [
+          { name: 'Flink / Spark 实时流处理', req: '精通 Flink State 调优与 Exact-Once 语义保障', user: '熟悉 Spark 批处理，Flink 流计算经验较少', status: 'gap' }
+        ],
+        abilities: [
+          { name: '海量实时数据吞吐设计', req: '解决数据倾斜与背压 (Backpressure) 问题', user: '有一定调优思路，缺乏大型真实场景实战', status: 'partial' }
+        ],
+        experiences: [
+          { name: '大型实时数仓经验', req: '2 年以上 Flink 线上项目实战经验', user: '主要以离线数仓与后端存储为主', status: 'gap' }
+        ]
+      },
+      {
+        id: 6,
+        title: '大模型前沿算法研究员',
+        salary: '50k - 80k · 16薪',
+        salaryMin: 50,
+        salaryMax: 80,
+        company: '腾讯 AI Lab',
+        category: 'agent',
+        city: '深圳',
+        district: '南山区',
+        businessType: '多模态基座模型演进',
+        status: '已被拒绝',
+        createdAt: '2026-09-15',
+        url: 'https://example.com/job/6',
+        matchSkill: 58,
+        matchAbility: 55,
+        matchExp: 50,
+        skills: [
+          { name: 'PyTorch 底层模型预训练', req: '精通 Megatron-LM 分布式并行训练算法', user: '以模型应用开发为主，不具备百亿参数预训练能力', status: 'gap' }
+        ],
+        abilities: [
+          { name: '前沿论文复现能力', req: '能够在顶级会议论文发表或快速复现前沿 Model', user: '偏工程应用落地方向', status: 'gap' }
+        ],
+        experiences: [
+          { name: '顶会发表/AI博士背景', req: '计算机/AI 博士或硕士顶会发表经历', user: '本科/硕士工程背景，缺少论文成果', status: 'gap' }
+        ]
+      }
+    ];
+
+    /* Helper: Auto-adjust Select element width to fit option text */
+    function adjustSelectWidth(selectEl) {
+      if (!selectEl) return;
+      const tempSpan = document.createElement('span');
+      tempSpan.style.visibility = 'hidden';
+      tempSpan.style.position = 'absolute';
+      tempSpan.style.whiteSpace = 'pre';
+      tempSpan.style.fontSize = window.getComputedStyle(selectEl).fontSize;
+      tempSpan.style.fontWeight = window.getComputedStyle(selectEl).fontWeight;
+      tempSpan.style.fontFamily = window.getComputedStyle(selectEl).fontFamily;
+      tempSpan.innerText = selectEl.options[selectEl.selectedIndex]?.text || '';
+      document.body.appendChild(tempSpan);
+      const width = tempSpan.getBoundingClientRect().width;
+      document.body.removeChild(tempSpan);
+      selectEl.style.width = (width + 38) + 'px';
+    }
+
+    /* Toggle Sort Order between Descending and Ascending */
+    function toggleSortOrder() {
+      currentSortOrder = currentSortOrder === 'desc' ? 'asc' : 'desc';
+      const icon = document.getElementById('sortOrderIcon');
+      const text = document.getElementById('sortOrderText');
+      if (currentSortOrder === 'desc') {
+        icon.className = 'fa-solid fa-arrow-down-wide-short text-xs md:text-sm';
+        text.textContent = '降序';
+      } else {
+        icon.className = 'fa-solid fa-arrow-up-wide-short text-xs md:text-sm';
+        text.textContent = '升序';
+      }
+      applyFilters();
+    }
+
+    /* Calculate weighted composite score */
+    function calculateCompositeScore(job) {
+      const skill = job.matchSkill || 0;
+      const ability = job.matchAbility || 0;
+      const exp = job.matchExp || 0;
+      return Math.round(skill * 0.5 + ability * 0.3 + exp * 0.2);
+    }
+
+    /* Match Score Palette Styling */
+    function getScoreStyle(score) {
+      if (score === 100) {
+        return { textColor: 'text-amber-500 font-extrabold', boxBg: 'bg-amber-50 text-amber-700 border-amber-200' };
+      } else if (score >= 90) {
+        return { textColor: 'text-emerald-500 font-bold', boxBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+      } else if (score >= 80) {
+        return { textColor: 'text-cyan-500 font-bold', boxBg: 'bg-cyan-50 text-cyan-700 border-cyan-200' };
+      } else if (score >= 70) {
+        return { textColor: 'text-violet-600 font-bold', boxBg: 'bg-violet-50 text-violet-700 border-violet-200' };
+      } else if (score >= 60) {
+        return { textColor: 'text-yellow-500 font-bold', boxBg: 'bg-yellow-50 text-yellow-700 border-yellow-300' };
+      } else {
+        return { textColor: 'text-rose-500 font-semibold', boxBg: 'bg-rose-50 text-rose-700 border-rose-200' };
+      }
+    }
+
+    /* Status Tag Color Mapping */
+    const statusColorMap = {
+      '未投递': 'bg-slate-100 text-slate-600 border-slate-200',
+      '已投递待回应': 'bg-yellow-50 text-yellow-700 border-yellow-300',
+      '面试中': 'bg-cyan-50 text-cyan-600 border-cyan-200',
+      '已发Offer': 'bg-emerald-50 text-emerald-600 border-emerald-200',
+      '已被拒绝': 'bg-rose-50 text-rose-600 border-rose-200'
+    };
+
+    /**
+     * Apply Search, Filters, and Sorting Logic
+     */
+    function applyFilters() {
+      const searchKeyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      const category = document.getElementById('categorySelect').value;
+      const city = document.getElementById('citySelect').value;
+      const status = document.getElementById('statusSelect').value;
+      const sortRule = document.getElementById('sortSelect').value;
+
+      // Toggle "综合分析" button visibility
+      const categoryAnalysisBtn = document.getElementById('categoryAnalysisBtn');
+      if (category !== 'all') {
+        categoryAnalysisBtn.classList.remove('hidden');
+      } else {
+        categoryAnalysisBtn.classList.add('hidden');
+      }
+
+      let filtered = jobData.filter(job => {
+        const matchKeyword = !searchKeyword || 
+          job.title.toLowerCase().includes(searchKeyword) ||
+          job.company.toLowerCase().includes(searchKeyword) ||
+          (job.businessType && job.businessType.toLowerCase().includes(searchKeyword)) ||
+          job.city.toLowerCase().includes(searchKeyword) ||
+          job.district.toLowerCase().includes(searchKeyword);
+
+        const matchCategory = (category === 'all') || (job.category === category);
+        const matchCity = (city === 'all') || (job.city === city);
+        const matchStatus = (status === 'all') || (job.status === status);
+
+        return matchKeyword && matchCategory && matchCity && matchStatus;
+      });
+
+      // Sort Rules
+      if (sortRule === 'composite') {
+        filtered.sort((a, b) => {
+          const scoreA = calculateCompositeScore(a);
+          const scoreB = calculateCompositeScore(b);
+          return currentSortOrder === 'desc' ? scoreB - scoreA : scoreA - scoreB;
+        });
+      } else if (sortRule === 'createdAt') {
+        filtered.sort((a, b) => {
+          const timeA = new Date(a.createdAt).getTime() || 0;
+          const timeB = new Date(b.createdAt).getTime() || 0;
+          return currentSortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+        });
+      } else if (sortRule === 'minSalary') {
+        filtered.sort((a, b) => {
+          return currentSortOrder === 'desc' ? b.salaryMin - a.salaryMin : a.salaryMin - b.salaryMin;
+        });
+      }
+
+      renderJobList(filtered);
+    }
+
+    function updateJobStatus(jobId, newStatus) {
+      const job = jobData.find(j => j.id === jobId);
+      if (job) {
+        job.status = newStatus;
+        applyFilters();
+        showToast(`岗位状态已切换为【${newStatus}】`);
+      }
+    }
+
+    /* Render Job Cards Stream */
+    function renderJobList(jobs) {
+      const container = document.getElementById('jobListContainer');
+      container.innerHTML = '';
+
+      if (jobs.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl p-12 text-center text-slate-400 border border-slate-200/80 card-shadow">
+            <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+            <p class="text-xs font-medium">暂无符合条件的岗位信息</p>
+          </div>
+        `;
+        return;
+      }
+
+      jobs.forEach(job => {
+        const compositeScore = calculateCompositeScore(job);
+        const compositeStyle = getScoreStyle(compositeScore);
+        
+        const skillStyle = getScoreStyle(job.matchSkill);
+        const abilityStyle = getScoreStyle(job.matchAbility);
+        const expStyle = getScoreStyle(job.matchExp);
+
+        const daysAgo = calculateDaysAgo(job.createdAt);
+        const daysAgoBadgeStyle = getDaysAgoStyle(daysAgo);
+
+        const card = document.createElement('div');
+        card.className = `bg-white rounded-2xl p-5 border border-slate-200/80 card-shadow card-shadow-hover relative flex flex-col md:flex-row md:items-center justify-between gap-5`;
+
+        card.innerHTML = `
+          <div class="space-y-3 flex-1">
+            
+            <!-- Row 1: Title + Salary Tag + Days Elapsed Tag + Application Status Selector -->
+            <div class="flex flex-wrap items-center gap-2.5">
+              <h3 onclick="openDetailDrawer(${job.id})" class="text-base font-bold text-slate-900 hover:text-brand-600 transition-colors cursor-pointer flex items-center gap-2">
+                ${job.title}
+                <a href="${job.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-slate-300 hover:text-slate-500 text-xs" title="跳转原 Job 网页">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+              </h3>
+
+              <!-- Salary Tag -->
+              <span class="text-amber-600 font-bold text-xs bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200/80">
+                ${job.salary}
+              </span>
+
+              <!-- Days Elapsed Badge (已录入天数 - 动态着色) -->
+              <span class="font-bold text-xs px-2.5 py-0.5 rounded-lg border ${daysAgoBadgeStyle}">
+                已录入 ${daysAgo} 天
+              </span>
+              
+              <!-- Interactive Status Dropdown -->
+              <div class="relative inline-block" onclick="event.stopPropagation()">
+                <select onchange="adjustSelectWidth(this); updateJobStatus(${job.id}, this.value)" class="status-select-auto ${statusColorMap[job.status] || 'bg-slate-100'} border text-[11px] font-semibold pl-2.5 pr-6 py-0.5 rounded-full cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-brand-400 transition-all">
+                  <option value="未投递" ${job.status === '未投递' ? 'selected' : ''} class="bg-white text-slate-800">未投递</option>
+                  <option value="已投递待回应" ${job.status === '已投递待回应' ? 'selected' : ''} class="bg-white text-slate-800">已投递待回应</option>
+                  <option value="面试中" ${job.status === '面试中' ? 'selected' : ''} class="bg-white text-slate-800">面试中</option>
+                  <option value="已发Offer" ${job.status === '已发Offer' ? 'selected' : ''} class="bg-white text-slate-800">已发Offer</option>
+                  <option value="已被拒绝" ${job.status === '已被拒绝' ? 'selected' : ''} class="bg-white text-slate-800">已被拒绝</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-[9px] pointer-events-none opacity-60"></i>
+              </div>
+            </div>
+
+            <!-- Row 2: Company + Location + Business Line -->
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 font-medium">
+              <span class="text-slate-800 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-building text-slate-400"></i> ${job.company}
+              </span>
+              <span class="flex items-center gap-1">
+                <i class="fa-solid fa-location-dot text-slate-400"></i> ${job.city} · ${job.district}
+              </span>
+              
+              ${job.businessType ? `
+                <span class="flex items-center gap-1 text-brand-600/90 font-medium bg-brand-50/70 px-2 py-0.5 rounded-md border border-brand-100/60">
+                  <i class="fa-solid fa-layer-group text-[10px] text-brand-400"></i> ${job.businessType}
+                </span>
+              ` : ''}
+            </div>
+
+            <!-- Row 3: Skill, Ability, Experience Match Metrics -->
+            <div class="pt-2 border-t border-slate-100/80 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="text-slate-400 font-medium">技能匹配度:</span>
+                <span class="${skillStyle.textColor}">${job.matchSkill}%</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-slate-400 font-medium">能力匹配度:</span>
+                <span class="${abilityStyle.textColor}">${job.matchAbility}%</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-slate-400 font-medium">经验匹配度:</span>
+                <span class="${expStyle.textColor}">${job.matchExp}%</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Score Display & Card Actions -->
+          <div class="flex items-center justify-between md:justify-end gap-5 border-t md:border-t-0 border-slate-100 pt-3 md:pt-0 shrink-0">
+            
+            <!-- Composite Match Display -->
+            <div class="text-right flex flex-col items-end">
+              <div class="flex items-center justify-end gap-1">
+                <span class="text-2xl ${compositeStyle.textColor} tracking-tight">${compositeScore}</span>
+                <span class="text-xs font-bold text-slate-400">%</span>
+              </div>
+              <span class="text-[11px] font-medium text-slate-400 mt-0.5">
+                综合匹配度
+              </span>
+            </div>
+
+            <!-- Action Buttons Group -->
+            <div class="flex items-center gap-2">
+              <button onclick="openDetailDrawer(${job.id})" class="px-3.5 py-2.5 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 text-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                <span>深度分析</span>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+              </button>
+
+              <button onclick="confirmDeleteJob(event, ${job.id})" class="p-2.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="删除该岗位">
+                <i class="fa-regular fa-trash-can text-sm"></i>
+              </button>
+            </div>
+
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      document.querySelectorAll('.status-select-auto').forEach(adjustSelectWidth);
+    }
+
+    let currentJobId = null;
+
+    /* Status Badge Mapping helper */
+    function getMatchBadge(status) {
+      if (status === 'match') {
+        return `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0"><i class="fa-solid fa-circle-check"></i> 完全匹配</span>`;
+      } else if (status === 'partial') {
+        return `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0"><i class="fa-solid fa-circle-exclamation"></i> 基本满足</span>`;
+      } else {
+        return `<span class="bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0"><i class="fa-solid fa-triangle-exclamation"></i> 需提升</span>`;
+      }
+    }
+
+    /* Open Deep Analysis Drawer (深度分析) */
+    function openDetailDrawer(jobId) {
+      currentJobId = jobId;
+      const job = jobData.find(j => j.id === jobId);
+      if (!job) return;
+
+      // 1. Skill Requirements List
+      const skillContainer = document.getElementById('analysisSkillList');
+      skillContainer.innerHTML = '';
+      (job.skills || []).forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 text-xs';
+        el.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-slate-900">${item.name}</span>
+            ${getMatchBadge(item.status)}
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-slate-200/50">
+            <div><span class="text-slate-400">岗位要求:</span> <span class="text-slate-700 font-medium">${item.req}</span></div>
+            <div><span class="text-slate-400">用户情况:</span> <span class="text-slate-800 font-semibold">${item.user}</span></div>
+          </div>
+        `;
+        skillContainer.appendChild(el);
+      });
+
+      // 2. Ability Requirements List
+      const abilityContainer = document.getElementById('analysisAbilityList');
+      abilityContainer.innerHTML = '';
+      (job.abilities || []).forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 text-xs';
+        el.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-slate-900">${item.name}</span>
+            ${getMatchBadge(item.status)}
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-slate-200/50">
+            <div><span class="text-slate-400">岗位要求:</span> <span class="text-slate-700 font-medium">${item.req}</span></div>
+            <div><span class="text-slate-400">用户情况:</span> <span class="text-slate-800 font-semibold">${item.user}</span></div>
+          </div>
+        `;
+        abilityContainer.appendChild(el);
+      });
+
+      // 3. Experience Requirements List
+      const expContainer = document.getElementById('analysisExpList');
+      expContainer.innerHTML = '';
+      (job.experiences || []).forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 text-xs';
+        el.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-slate-900">${item.name}</span>
+            ${getMatchBadge(item.status)}
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-slate-200/50">
+            <div><span class="text-slate-400">岗位要求:</span> <span class="text-slate-700 font-medium">${item.req}</span></div>
+            <div><span class="text-slate-400">用户情况:</span> <span class="text-slate-800 font-semibold">${item.user}</span></div>
+          </div>
+        `;
+        expContainer.appendChild(el);
+      });
+
+      document.getElementById('detailDrawer').classList.remove('hidden');
+    }
+
+    function closeDetailDrawer() {
+      document.getElementById('detailDrawer').classList.add('hidden');
+    }
+
+    /* Category Comprehensive Analysis Sub-module Modal (综合分析) */
+    function openCategoryAnalysisModal() {
+      const categoryKey = document.getElementById('categorySelect').value;
+      if (categoryKey === 'all') return;
+
+      const categoryName = categoryNameMap[categoryKey] || '所选岗位';
+      document.getElementById('categoryAnalysisTitle').textContent = `${categoryName} - 综合分析`;
+
+      renderCategoryAnalysis(categoryKey);
+      document.getElementById('categoryAnalysisModal').classList.remove('hidden');
+    }
+
+    function closeCategoryAnalysisModal() {
+      document.getElementById('categoryAnalysisModal').classList.add('hidden');
+    }
+
+    function renderCategoryAnalysis(categoryKey) {
+      const dimensions = [
+        { label: '大模型/RAG应用', reqFreq: '12/15 岗', marketVal: 90, userVal: 88 },
+        { label: 'Python后端架构', reqFreq: '15/15 岗', marketVal: 85, userVal: 85 },
+        { label: 'C++/CUDA底调', reqFreq: '6/15 岗', marketVal: 60, userVal: 30 },
+        { label: '高并发高可用调优', reqFreq: '10/15 岗', marketVal: 80, userVal: 75 },
+        { label: '云原生/K8s运维', reqFreq: '8/15 岗', marketVal: 70, userVal: 65 },
+        { label: '行业项目落地年限', reqFreq: '14/15 岗', marketVal: 85, userVal: 80 }
+      ];
+
+      const radarContainer = document.getElementById('radarChartContainer');
+      const size = 320;
+      const center = size / 2;
+      const radius = 105;
+      const total = dimensions.length;
+
+      function getPoint(index, value) {
+        const angle = (Math.PI * 2 / total) * index - Math.PI / 2;
+        const r = (value / 100) * radius;
+        return {
+          x: center + r * Math.cos(angle),
+          y: center + r * Math.sin(angle)
+        };
+      }
+
+      let gridPolygons = '';
+      [0.25, 0.5, 0.75, 1.0].forEach(level => {
+        const pts = dimensions.map((_, i) => {
+          const pt = getPoint(i, level * 100);
+          return `${pt.x},${pt.y}`;
+        }).join(' ');
+        gridPolygons += `<polygon points="${pts}" fill="none" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="${level === 1 ? 'none' : '3 3'}"/>`;
+      });
+
+      let axisLines = '';
+      dimensions.forEach((_, i) => {
+        const pt = getPoint(i, 100);
+        axisLines += `<line x1="${center}" y1="${center}" x2="${pt.x}" y2="${pt.y}" stroke="#CBD5E1" stroke-width="1"/>`;
+      });
+
+      const marketPts = dimensions.map((d, i) => { const p = getPoint(i, d.marketVal); return `${p.x},${p.y}`; }).join(' ');
+      const userPts = dimensions.map((d, i) => { const p = getPoint(i, d.userVal); return `${p.x},${p.y}`; }).join(' ');
+
+      let labelNodes = '';
+      dimensions.forEach((d, i) => {
+        const angle = (Math.PI * 2 / total) * i - Math.PI / 2;
+        const labelRadius = radius + 32;
+        const lx = center + labelRadius * Math.cos(angle);
+        const ly = center + labelRadius * Math.sin(angle);
+        
+        let textAnchor = 'middle';
+        if (Math.cos(angle) > 0.3) textAnchor = 'start';
+        if (Math.cos(angle) < -0.3) textAnchor = 'end';
+
+        labelNodes += `
+          <text x="${lx}" y="${ly - 6}" text-anchor="${textAnchor}" class="fill-slate-800 text-[11px] font-bold">${d.label}</text>
+          <text x="${lx}" y="${ly + 8}" text-anchor="${textAnchor}" class="fill-slate-400 text-[10px] font-medium">要求频次: ${d.reqFreq}</text>
+        `;
+      });
+
+      const svgHtml = `
+        <svg width="${size}" height="${size}" class="overflow-visible">
+          ${gridPolygons}
+          ${axisLines}
+          <polygon points="${marketPts}" fill="rgba(6, 182, 212, 0.25)" stroke="#06B6D4" stroke-width="2.5"/>
+          <polygon points="${userPts}" fill="rgba(16, 185, 129, 0.25)" stroke="#10B981" stroke-width="2.5"/>
+
+          ${dimensions.map((d, i) => {
+            const mp = getPoint(i, d.marketVal);
+            const up = getPoint(i, d.userVal);
+            return `
+              <circle cx="${mp.x}" cy="${mp.y}" r="3.5" class="fill-cyan-500"/>
+              <circle cx="${up.x}" cy="${up.y}" r="3.5" class="fill-emerald-500"/>
+            `;
+          }).join('')}
+
+          ${labelNodes}
+        </svg>
+      `;
+      radarContainer.innerHTML = svgHtml;
+
+      const skillRoadmapContainer = document.getElementById('skillRoadmapContainer');
+      skillRoadmapContainer.innerHTML = `
+        <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">1. C++/CUDA 底层推理算子加速</span>
+            <span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold rounded-md">🔴 高优先级</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">当前在算子优化方向存在明显短板，建议补充 TensorRT / vLLM 部署调优与 GPU 显存分配机制。</p>
+        </div>
+
+        <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">2. Flink / Spark 实时流处理机制</span>
+            <span class="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold rounded-md">🟠 中优先级</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">部分大模型 API 中台岗位关注流式长连接背压，可学习基于 Flink 的状态管理与实时日志处理。</p>
+        </div>
+
+        <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">3. LangChain / LlamaIndex 深度重构</span>
+            <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold rounded-md">🟢 优势巩固</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">您在 RAG 与多智能体编排上具有优势，可持续跟进 Multi-Agent Graph 框架迭代。</p>
+        </div>
+      `;
+
+      const abilityRoadmapContainer = document.getElementById('abilityRoadmapContainer');
+      abilityRoadmapContainer.innerHTML = `
+        <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">阶段一：大模型首字延迟 (TTFT) 与流式架构</span>
+            <span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold rounded-md">🔴 高优先级</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">重点提升 Token 流式分发、SSE/WebSocket 传输以及长文本 Chunk 动态分块的综合工程落地能力。</p>
+        </div>
+
+        <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">阶段二：千万级高并发流量削峰与容错</span>
+            <span class="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-md rounded-md">🟠 中优先级</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">强化分布式锁、Redis 多级缓存与 Rate Limiter 速率限制中台设计，补齐超高并发场景经验。</p>
+        </div>
+
+        <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">阶段三：云原生 K8s Operator 自动化运维</span>
+            <span class="px-2 py-0.5 bg-violet-50 text-violet-700 border border-violet-200 text-[10px] font-bold rounded-md">⚪ 常规拓展</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">了解 GPU 集群多租户隔离与云原生弹性扩缩容机制，提升大规模基础设施治理水平。</p>
+        </div>
+      `;
+    }
+
+    /* Modal Handlers */
+    let pendingDeleteId = null;
+
+    function confirmDeleteJob(event, jobId) {
+      if (event) event.stopPropagation();
+      pendingDeleteId = jobId;
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    }
+
+    function closeDeleteConfirmModal() {
+      pendingDeleteId = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    }
+
+    function executeDeleteJob() {
+      if (pendingDeleteId) {
+        jobData = jobData.filter(j => j.id !== pendingDeleteId);
+        closeDeleteConfirmModal();
+        applyFilters();
+        showToast("已从系统中删除该岗位");
+      }
+    }
+
+    function openIngestionModal() {
+      document.getElementById('ingestionModal').classList.remove('hidden');
+    }
+
+    function closeIngestionModal() {
+      document.getElementById('ingestionModal').classList.add('hidden');
+    }
+
+    function submitIngestion() {
+      closeIngestionModal();
+      showToast("解析成功！已新增 1 条岗位");
+    }
+
+    /* Category Modal Logic */
+    function openAddCategoryModal() {
+      document.getElementById('addCategoryModal').classList.remove('hidden');
+    }
+
+    function closeAddCategoryModal() {
+      document.getElementById('addCategoryModal').classList.add('hidden');
+      document.getElementById('newCategoryInput').value = '';
+    }
+
+    function submitNewCategory() {
+      const nameInput = document.getElementById('newCategoryInput').value.trim();
+      if (!nameInput) {
+        alert('请输入类别名称');
+        return;
+      }
+      
+      const key = 'cat_' + Date.now();
+      categoryNameMap[key] = nameInput;
+
+      // Dynamically insert options into both main filter and modal selector
+      const categorySelect = document.getElementById('categorySelect');
+      const modalCategorySelect = document.getElementById('modalCategorySelect');
+
+      const opt1 = document.createElement('option');
+      opt1.value = key;
+      opt1.textContent = nameInput;
+      opt1.className = 'bg-slate-900 text-slate-100';
+      categorySelect.appendChild(opt1);
+
+      const opt2 = document.createElement('option');
+      opt2.value = key;
+      opt2.textContent = nameInput;
+      modalCategorySelect.appendChild(opt2);
+
+      modalCategorySelect.value = key;
+
+      closeAddCategoryModal();
+      showToast(`已成功添加新类别【${nameInput}】`);
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toastMessage');
+      document.getElementById('toastText').textContent = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    /* Page Initializer */
+    window.onload = function() {
+      applyFilters();
+    };
+  </script>
+
+</body>
+</html>

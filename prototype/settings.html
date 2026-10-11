@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统设置 - Job Analyzer</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/tailwind.config.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+  <!-- 左侧导航：由 layout.js 统一渲染，data-nav 指定当前高亮项 -->
+  <aside id="sidebar" data-nav="settings" class="sidebar"></aside>
+
+  <!-- 右侧主工作区 -->
+  <main class="page-shell">
+    <div class="page-sticky">
+
+      <!-- 页头 -->
+      <header class="page-header">
+        <div>
+          <h2 class="page-title">系统设置</h2>
+          <p class="page-subtitle">管理多厂商大语言模型 (LLM) API 接口、模型推理参数与系统全局配置</p>
+        </div>
+
+        <div class="page-actions" id="pageActions"></div>
+      </header>
+
+      <!-- 设置概览横幅（内容由 JS 汇总） -->
+      <section class="hero p-6">
+        <div class="hero-glow"></div>
+
+        <div class="hero-inner flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+
+          <div class="flex-1 space-y-2">
+            <span class="text-brand-200 text-sm font-semibold uppercase tracking-wider block">大模型引擎适配概览</span>
+            <div id="bannerLlmStats" class="flex flex-wrap items-center gap-6 text-center pt-1"></div>
+          </div>
+
+          <div class="hidden lg:block h-14 w-px bg-brand-400/20"></div>
+
+          <div class="flex-1 space-y-2">
+            <span class="text-brand-200 text-sm font-semibold uppercase tracking-wider block">当前默认推理引擎</span>
+            <div id="bannerActiveStats" class="flex flex-wrap items-center gap-6 text-center pt-1"></div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <div class="page-body">
+
+      <!-- 全局模型推理默认参数 -->
+      <section class="space-y-4">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">全局模型推理默认参数</h3>
+            <p class="section-desc">选择默认调用的 LLM 模型并设置统一的 Temperature、Tokens</p>
+          </div>
+
+          <button type="button" class="btn btn-primary" data-action="settings:save-global">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>保存全局参数</span>
+          </button>
+        </div>
+
+        <div class="card p-6">
+          <div class="form-grid form-grid-3">
+
+            <div>
+              <label class="form-label" for="globalActiveModel">默认模型引擎</label>
+              <select id="globalActiveModel" class="form-select font-semibold text-slate-800"></select>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center">
+                <label class="form-label mb-0" for="globalTemperature">随机性 / 采样温度 (Temperature)</label>
+                <span id="tempValueDisplay" class="font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded text-xs"></span>
+              </div>
+              <div class="flex items-center gap-3 pt-2">
+                <span class="text-xs text-slate-400 font-medium shrink-0">精确</span>
+                <input type="range" id="globalTemperature" min="0" max="2" step="0.1"
+                       data-input="settings:sync-temp" class="w-full accent-brand-600 h-2 bg-slate-200 rounded-lg cursor-pointer">
+                <span class="text-xs text-slate-400 font-medium shrink-0">发散</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label" for="globalMaxTokens">单次生成最大 Token (Max Tokens)</label>
+              <input type="number" id="globalMaxTokens" step="256" min="256" max="32768" class="form-input">
+            </div>
+
+            <div class="md:col-span-2 lg:col-span-3">
+              <label class="form-label" for="globalSystemPrompt">系统级通用 Prompt 约束前缀 (System Instruction Prefix)</label>
+              <textarea id="globalSystemPrompt" rows="2" class="form-textarea"
+                        placeholder="全局预设 System Prompt，例如：你是一个资深的职业规划专家和 HR 招聘总监..."></textarea>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- LLM 厂商与接口配置 -->
+      <section class="space-y-4 pt-2">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">LLM 模型厂商与接口配置</h3>
+            <p class="section-desc">支持配置多家主流大模型云端 API（OpenAI, DeepSeek, 阿里通义, Anthropic, 月之暗面等）及本地 Ollama 私有化部署服务</p>
+          </div>
+
+          <button type="button" class="btn btn-primary" data-action="settings:open-provider">
+            <i class="fa-solid fa-plus"></i>
+            <span>新增 LLM 厂商</span>
+          </button>
+        </div>
+
+        <div id="providersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 厂商新增 / 编辑弹窗 -->
+  <div id="providerModal" class="modal">
+    <div class="modal-panel modal-xl">
+
+      <div class="modal-head">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-cloud-bolt"></i>
+          </div>
+          <h3 id="providerModalTitle" class="modal-title">新增 LLM 厂商配置</h3>
+        </div>
+        <button type="button" class="modal-close" data-action="ui:close-modal" data-target="providerModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="providerForm" data-submit="settings:save-provider" class="flex flex-col flex-1 min-h-0">
+        <div class="modal-body">
+          <input type="hidden" id="providerId">
+
+          <div>
+            <label class="form-label">快速填充预设厂商模板</label>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="btn btn-sm btn-soft" data-action="settings:apply-preset" data-preset="deepseek">DeepSeek 深度求索</button>
+              <button type="button" class="btn btn-sm btn-soft" data-action="settings:apply-preset" data-preset="openai">OpenAI 官方</button>
+              <button type="button" class="btn btn-sm btn-soft" data-action="settings:apply-preset" data-preset="qwen">阿里 DashScope / 问天</button>
+              <button type="button" class="btn btn-sm btn-soft" data-action="settings:apply-preset" data-preset="moonshot">月之暗面 Kimi</button>
+              <button type="button" class="btn btn-sm btn-soft" data-action="settings:apply-preset" data-preset="ollama">Ollama 本地大模型</button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div>
+              <label class="form-label" for="providerName">厂商/服务名称</label>
+              <input type="text" id="providerName" required class="form-input" placeholder="例如: DeepSeek 官方">
+            </div>
+            <div>
+              <label class="form-label" for="providerProtocol">接口协议 Adapter</label>
+              <select id="providerProtocol" class="form-select">
+                <option value="OpenAI Compatible">OpenAI API 格式兼容</option>
+                <option value="Anthropic Claude">Anthropic Claude API</option>
+                <option value="Ollama Native">Ollama 本地 REST API</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" for="providerBaseUrl">API Base URL (端点基地址)</label>
+            <input type="url" id="providerBaseUrl" required class="form-input" placeholder="https://api.deepseek.com/v1">
+          </div>
+
+          <div>
+            <label class="form-label" for="providerApiKey">API Key (密钥凭证)</label>
+            <div class="relative">
+              <input type="password" id="providerApiKey" class="form-input pr-10" placeholder="sk-********************************">
+              <button type="button" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                      data-action="settings:toggle-key" data-target="providerApiKey" title="显示 / 隐藏密钥">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+            <p class="form-hint">如使用本地 Ollama 无需填写密钥；密钥将严格本地加密存储。</p>
+          </div>
+
+          <div>
+            <label class="form-label" for="providerModels">支持的模型列表 (用英文逗号分隔)</label>
+            <input type="text" id="providerModels" required class="form-input" placeholder="deepseek-chat, deepseek-coder">
+          </div>
+
+          <div>
+            <label class="form-label" for="providerDefaultModel">此厂商默认主打模型</label>
+            <input type="text" id="providerDefaultModel" required class="form-input" placeholder="deepseek-chat">
+          </div>
+
+          <div>
+            <label class="form-label" for="providerHeaders">自定义 Header 附加参数 (可选, JSON 格式)</label>
+            <textarea id="providerHeaders" rows="2" class="form-textarea form-mono" placeholder='{"HTTP-Referer": "http://localhost", "X-Title": "JobAnalyzer"}'></textarea>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="providerEnabled" checked class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500">
+            <label for="providerEnabled" class="text-sm font-semibold text-slate-700">启用该厂商服务接口</label>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn btn-secondary" data-action="ui:close-modal" data-target="providerModal">取消</button>
+          <button type="submit" class="btn btn-primary">保存配置</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- API 连通性测试诊断弹窗 -->
+  <div id="testModal" class="modal">
+    <div class="modal-panel modal-md">
+
+      <div class="modal-head">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-network-wired text-brand-600"></i>
+          <h3 class="modal-title">API 连通性测试诊断</h3>
+        </div>
+        <button type="button" class="modal-close" data-action="ui:close-modal" data-target="testModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="testLogContainer" class="bg-slate-900 rounded-2xl p-4 text-emerald-400 font-mono text-xs space-y-2 max-h-48 overflow-y-auto"></div>
+        <div id="testStatusBanner" class="p-3 rounded-xl border flex items-center gap-3"></div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary btn-sm" data-action="ui:close-modal" data-target="testModal">关闭窗口</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/data/settings.data.js"></script>
+  <script src="assets/js/pages/settings.page.js"></script>
+</body>
+</html>

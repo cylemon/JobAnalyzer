@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>综合看板 - Job Analyzer</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/tailwind.config.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+  <!-- 左侧导航：由 layout.js 统一渲染，data-nav 指定当前高亮项 -->
+  <aside id="sidebar" data-nav="dashboard" class="sidebar"></aside>
+
+  <!-- 右侧主工作区 -->
+  <main class="page-shell">
+    <div class="page-sticky">
+
+      <!-- 页头 -->
+      <header class="page-header">
+        <div>
+          <h2 class="page-title">综合看板</h2>
+          <p class="page-subtitle">全景掌控目标岗位进度、匹配度多维分布及核心能力跃升路径</p>
+        </div>
+
+        <div class="page-actions" id="pageActions">
+          <button type="button" class="btn btn-primary" data-action="dash:refresh">
+            <i class="fa-solid fa-rotate"></i>
+            <span>数据刷新</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- 顶部指标概览横幅 -->
+      <section class="hero p-5">
+        <div class="hero-glow"></div>
+        <div id="kpiRow" class="hero-inner grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white/10"></div>
+      </section>
+
+    </div>
+
+    <div class="page-body">
+
+      <!-- 三个环形图（结构一致，由 JS 统一渲染） -->
+      <section id="donutRow" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></section>
+
+      <!-- 匹配度分层统计 -->
+      <section class="card p-6 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-brand-600"></i>
+              <span>匹配度层级岗位数量统计</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">按综合匹配度分层划定的岗位聚集状态与重点关注企业</p>
+          </div>
+
+          <div id="matchTierLegend" class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500"></div>
+        </div>
+
+        <div class="space-y-4">
+          <div id="matchTierBar" class="tier-bar"></div>
+          <div id="matchTierCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1"></div>
+        </div>
+      </section>
+
+      <!-- 待学习技能与待提升能力 -->
+      <section class="space-y-4">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title flex items-center gap-2">
+              <i class="fa-solid fa-list-check text-brand-600"></i>
+              <span>待学习技能与待提升能力</span>
+            </h3>
+            <p class="section-desc">精准剖析目标岗位技术栈与工程力短板，分类规划提升路线</p>
+          </div>
+
+          <div id="gapTabs" class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl text-xs font-medium"></div>
+        </div>
+
+        <div id="gapColumns" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/data/dashboard.data.js"></script>
+  <script src="assets/js/pages/dashboard.page.js"></script>
+</body>
+</html>

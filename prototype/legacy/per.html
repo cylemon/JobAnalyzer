@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人信息管理 - Job Analyzer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#F4F5F9',
+              100: '#E6E8F2',
+              200: '#CDD1E4',
+              300: '#A7ADCf',
+              400: '#7E85B6',
+              500: '#5C629E',
+              600: '#484E88', // Core Soft Purple
+              700: '#3A3F70',
+              800: '#2E3258',
+              900: '#232643',
+              950: '#17192C'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    }
+    
+    .card-shadow-hover {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-shadow-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(72, 78, 136, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+  <!-- Left Navigation Sidebar Block -->
+  <aside class="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between p-5 z-10 shrink-0">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 px-2 mb-8">
+        <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-200">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-900 text-base leading-tight">JobAnalyzer</h1>
+          <p class="text-xs text-slate-400 font-medium">技能与能力导向求职助手</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1.5">
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-chart-pie w-5 text-slate-400"></i>
+          <span>综合看板</span>
+        </a>
+        <a href="job info.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-briefcase w-5 text-slate-400"></i>
+          <span>岗位信息</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-50 text-brand-600 text-sm font-semibold transition-colors">
+          <i class="fa-solid fa-user-gear w-5 text-brand-600"></i>
+          <span>个人信息</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-sliders w-5 text-slate-400"></i>
+          <span>系统与设置</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Storage Badge -->
+    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+      <div class="flex items-center justify-between text-xs text-slate-500 mb-2 font-medium">
+        <span>本地缓存保护</span>
+        <span class="text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i> 隐私安全</span>
+      </div>
+      <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mb-2">
+        <div class="bg-brand-600 h-full w-1/4"></div>
+      </div>
+      <p class="text-xs text-slate-400">数据全量存储于本地浏览器</p>
+    </div>
+  </aside>
+
+  <!-- Right Workspace Block (Unified Content Panel) -->
+  <main class="flex-1 h-full overflow-y-auto bg-[#F8FAFC]">
+    
+    <!-- Sticky Top Section: Header & Dark Overview Banner -->
+    <div class="sticky top-0 z-20 bg-[#F8FAFC] px-8 pt-8 pb-4 space-y-6">
+      <!-- Page Integrated Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">个人信息管理</h2>
+          <p class="text-sm text-slate-500 mt-0.5">管理个人掌握的技术技能与工作经验履历</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Toast Notification Box -->
+          <div id="toastMessage" class="hidden text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toastText">操作成功</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Overview Banner -->
+      <section class="bg-gradient-to-r from-brand-600 via-brand-800 to-brand-950 rounded-2xl p-6 border border-brand-500/30 shadow-lg text-white relative overflow-hidden">
+        <div class="absolute -left-10 -top-10 w-48 h-48 bg-brand-400/25 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+          
+          <!-- Domain Skill Distribution Summary -->
+          <div class="flex-1 space-y-2">
+            <span class="text-brand-200 text-sm font-semibold uppercase tracking-wider block">技能领域分布</span>
+            <div id="bannerSkillStats" class="flex flex-wrap items-center gap-6 text-center pt-1">
+              <!-- Dynamically Populated via JS -->
+            </div>
+          </div>
+
+          <div class="hidden lg:block h-14 w-px bg-brand-400/20"></div>
+
+          <!-- Domain Experience Summary -->
+          <div class="flex-1 space-y-2">
+            <span class="text-brand-200 text-sm font-semibold uppercase tracking-wider block">岗位经验年限概况</span>
+            <div id="bannerExpStats" class="flex flex-wrap items-center gap-6 text-center pt-1">
+              <!-- Dynamically Populated via JS -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- Scrollable Content Body -->
+    <div class="px-8 pb-8 space-y-6 pt-2">
+      <!-- Section 1: Dynamic Skills Inventory -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="font-bold text-lg text-slate-900 border-l-4 border-brand-600 pl-3">技能矩阵与能力储备</h3>
+
+          <button onclick="openSkillModal()" class="px-4 py-2 bg-[#484E88] hover:bg-brand-700 text-white text-sm font-semibold rounded-xl transition-all flex items-center gap-2 shadow-md shadow-brand-200">
+            <i class="fa-solid fa-plus text-white"></i>
+            <span>添加技能项</span>
+          </button>
+        </div>
+
+        <!-- Skill Cards Grid -->
+        <div id="skillsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Dynamic Skill Cards Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- Section 2: Work Experience & Capabilities -->
+      <section class="space-y-4 pt-2">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-lg text-slate-900 border-l-4 border-brand-600 pl-3">工作经验与履历</h3>
+
+          <button onclick="openExperienceModal()" class="px-4 py-2 bg-[#484E88] hover:bg-brand-700 text-white text-sm font-semibold rounded-xl transition-all flex items-center gap-2 shadow-md shadow-brand-200">
+            <i class="fa-solid fa-plus text-white"></i>
+            <span>添加工作履历</span>
+          </button>
+        </div>
+
+        <!-- Experience Timeline Stream -->
+        <div id="experienceContainer" class="space-y-4">
+          <!-- Dynamic Experience Cards Rendered via JS -->
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Modal: Add / Edit Skill -->
+  <div id="skillModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="skillModalTitle" class="font-bold text-lg text-slate-900">添加技能</h3>
+        <button onclick="closeSkillModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="skillForm" onsubmit="saveSkill(event)" class="space-y-4 text-sm">
+        <input type="hidden" id="skillId">
+        
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">技能名称</label>
+          <input type="text" id="skillName" required placeholder="例如: Python / FastAPI / Kubernetes / 机械绘图" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">技能类别领域</label>
+          <input type="text" id="skillDomain" required placeholder="例如: AI/大模型技能、编程与后端技能、数据分析技能" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">熟练度等级</label>
+          <select id="skillLevel" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-medium">
+            <option value="精通">精通 (Master)</option>
+            <option value="熟练">熟练 (Proficient)</option>
+            <option value="一般">一般 (Intermediate)</option>
+            <option value="入门">入门 (Basic)</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeSkillModal()" class="px-4 py-2 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50">
+            取消
+          </button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md shadow-brand-200">
+            保存技能
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Experience -->
+  <div id="experienceModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="expModalTitle" class="font-bold text-lg text-slate-900">添加工作履历</h3>
+        <button onclick="closeExperienceModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="expForm" onsubmit="saveExperience(event)" class="space-y-4 text-sm">
+        <input type="hidden" id="expId">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1.5">公司名称</label>
+            <input type="text" id="expCompany" required placeholder="例如: 字节跳动" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1.5">岗位名称</label>
+            <input type="text" id="expRole" required placeholder="例如: 高级 AI Agent 研发工程师" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1.5">岗位分类 / 类型</label>
+            <input type="text" id="expType" required placeholder="例如: 大模型研发、后端架构、测试岗位" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1.5">工作年限 (年)</label>
+            <input type="number" step="0.5" id="expYears" required placeholder="2.0" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">起止时间</label>
+          <input type="text" id="expPeriod" required placeholder="例如: 2024.01 - 至今" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">核心职责与贡献 (多条用换行分隔)</label>
+          <textarea id="expHighlights" rows="3" placeholder="负责 AI Agent 智能体编排引擎搭建&#10;优化高并发底层 API 延迟" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-sans text-sm"></textarea>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1.5">体现的能力 / 关联技术标签 (用逗号分隔)</label>
+          <input type="text" id="expTechStack" placeholder="Python, LangChain, FastAPI, Docker" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeExperienceModal()" class="px-4 py-2 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50">
+            取消
+          </button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md shadow-brand-200">
+            保存履历
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-base text-slate-900">确定要删除该记录吗？</h4>
+          <p class="text-xs text-slate-500 mt-0.5">此操作无法撤销，数据将从本地存储中移除。</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button onclick="closeDeleteModal()" class="px-3.5 py-2 border border-slate-200 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-colors">
+          取消
+        </button>
+        <button onclick="executeDelete()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-rose-200 transition-colors">
+          确认删除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    /* Data Store: Personal Skills */
+    let skillsData = [
+      { id: 1, name: 'Python / FastAPI', domain: '编程与后端技能', level: '精通' },
+      { id: 2, name: 'LangChain & LlamaIndex', domain: 'AI与大模型技能', level: '精通' },
+      { id: 3, name: 'RAG 向量检索 & Multi-Agent', domain: 'AI与大模型技能', level: '精通' },
+      { id: 4, name: 'Docker & Kubernetes', domain: '编程与后端技能', level: '熟练' },
+      { id: 5, name: 'PostgreSQL & Redis', domain: '数据与存储技能', level: '熟练' },
+      { id: 6, name: 'ClickHouse 实时分析', domain: '数据与存储技能', level: '一般' },
+      { id: 7, name: 'Go 语言微服务', domain: '编程与后端技能', level: '一般' },
+      { id: 8, name: 'Prompt 工程与调优', domain: 'AI与大模型技能', level: '熟练' }
+    ];
+
+    /* Data Store: Work Experiences */
+    let experienceData = [
+      {
+        id: 1,
+        company: '某知名 AI 科技创新企业',
+        role: '大模型应用研发工程师',
+        type: '大模型与AI研发',
+        period: '2024.01 - 至今',
+        years: 2.0,
+        highlights: [
+          '主导基于 LangChain 的企业级 RAG 知识库系统搭建，向量检索准确率提升 35%',
+          '设计 Agent 多智能体协作工作流，支撑高并发场景下的长文本处理与推理',
+          '重构后端 API 微服务架构，降低系统平均请求延迟约 40%'
+        ],
+        techStack: ['Python', 'LangChain', 'FastAPI', 'VectorDB', 'Docker']
+      },
+      {
+        id: 2,
+        company: '某基础云软件有限公司',
+        role: '后端架构/软件工程师',
+        type: '后端与架构开发',
+        period: '2021.07 - 2023.12',
+        years: 2.5,
+        highlights: [
+          '负责云原生高并发中间件的研发与部署维护，保障 99.99% 系统可用性',
+          '参与分布式缓存与 Redis 数据库性能优化，完成读写分离方案落地',
+          '编写自动化 CI/CD 流水线脚本，显著提升产品迭代部署效率'
+        ],
+        techStack: ['Go', 'Python', 'Kubernetes', 'Redis', 'PostgreSQL']
+      }
+    ];
+
+    /* Styling badge maps for Skill Levels */
+    const levelStyleMap = {
+      '精通': 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold',
+      '熟练': 'bg-cyan-50 text-cyan-700 border-cyan-200 font-semibold',
+      '一般': 'bg-violet-50 text-violet-700 border-violet-200 font-medium',
+      '入门': 'bg-slate-100 text-slate-600 border-slate-200 font-medium'
+    };
+
+    /* Render Skills Section */
+    function renderSkills() {
+      const container = document.getElementById('skillsContainer');
+      container.innerHTML = '';
+
+      if (skillsData.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl p-8 text-center text-slate-400 border border-slate-200/80 card-shadow">
+            <i class="fa-solid fa-code text-3xl mb-2 text-slate-300"></i>
+            <p class="text-sm font-medium">暂无技能项，请点击上方“添加技能项”</p>
+          </div>
+        `;
+        updateBannerStats();
+        return;
+      }
+
+      skillsData.forEach(skill => {
+        const levelStyle = levelStyleMap[skill.level] || levelStyleMap['入门'];
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-5 border border-slate-200/80 card-shadow card-shadow-hover flex flex-col justify-between space-y-3.5';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="font-bold text-slate-900 text-base truncate" title="${skill.name}">${skill.name}</h4>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="editSkill(${skill.id})" class="text-slate-300 hover:text-brand-600 text-sm p-1 transition-colors" title="编辑">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="confirmDelete('skill', ${skill.id})" class="text-slate-300 hover:text-rose-600 text-sm p-1 transition-colors" title="删除">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-xs text-slate-400 font-medium">熟练度</span>
+            <span class="text-xs px-3 py-1 rounded-full border ${levelStyle}">${skill.level}</span>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      updateBannerStats();
+    }
+
+    /* Render Experiences Section */
+    function renderExperiences() {
+      const container = document.getElementById('experienceContainer');
+      container.innerHTML = '';
+
+      if (experienceData.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl p-8 text-center text-slate-400 border border-slate-200/80 card-shadow">
+            <i class="fa-solid fa-briefcase text-3xl mb-2 text-slate-300"></i>
+            <p class="text-sm font-medium">暂无工作履历记录，点击右上角添加</p>
+          </div>
+        `;
+        updateBannerStats();
+        return;
+      }
+
+      experienceData.forEach(exp => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-5 border border-slate-200/80 card-shadow card-shadow-hover space-y-3.5';
+
+        const highlightsHtml = exp.highlights.map(h => `<li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-dot text-[9px] text-brand-500 mt-1.5 shrink-0"></i><span class="text-slate-700 leading-relaxed">${h}</span></li>`).join('');
+        const tagsHtml = exp.techStack.map(t => `<span class="bg-slate-100 text-slate-700 text-xs font-medium px-3 py-1 rounded-lg">${t}</span>`).join('');
+
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div>
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <h4 class="font-bold text-slate-900 text-lg">${exp.role}</h4>
+                <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-md font-semibold">${exp.years} 年经验</span>
+                <span class="text-xs bg-brand-50 text-brand-600 border border-brand-100 px-2.5 py-0.5 rounded-md font-semibold">${exp.type || '通用'}</span>
+              </div>
+              <p class="text-sm text-slate-500 font-semibold mt-1.5 flex items-center gap-2">
+                <i class="fa-solid fa-building text-slate-400"></i> ${exp.company}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-slate-400 font-medium">${exp.period}</span>
+              <div class="flex items-center gap-1 border-l border-slate-200 pl-3">
+                <button onclick="editExperience(${exp.id})" class="p-1.5 text-slate-300 hover:text-brand-600 rounded-lg transition-colors" title="编辑履历">
+                  <i class="fa-solid fa-pen-to-square text-sm"></i>
+                </button>
+                <button onclick="confirmDelete('exp', ${exp.id})" class="p-1.5 text-slate-300 hover:text-rose-600 rounded-lg transition-colors" title="删除履历">
+                  <i class="fa-regular fa-trash-can text-sm"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <span class="text-sm font-bold text-slate-800 block">核心工作成果与能力体现:</span>
+            <ul class="text-sm space-y-2">
+              ${highlightsHtml}
+            </ul>
+          </div>
+
+          <div class="pt-2 flex flex-wrap items-center gap-2">
+            <span class="text-xs text-slate-400 font-semibold mr-1">关键能力标签:</span>
+            ${tagsHtml}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      updateBannerStats();
+    }
+
+    /* Update Top Banner Breakdown Stats */
+    function updateBannerStats() {
+      // 1. Skill Breakdown by Domain
+      const skillDomainCounts = {};
+      skillsData.forEach(s => {
+        const domain = s.domain || '其他技能';
+        skillDomainCounts[domain] = (skillDomainCounts[domain] || 0) + 1;
+      });
+
+      const skillStatsContainer = document.getElementById('bannerSkillStats');
+      skillStatsContainer.innerHTML = '';
+      if (Object.keys(skillDomainCounts).length === 0) {
+        skillStatsContainer.innerHTML = `<span class="text-sm text-brand-200/70">暂无技能项</span>`;
+      } else {
+        Object.entries(skillDomainCounts).forEach(([domain, count]) => {
+          const item = document.createElement('div');
+          item.className = 'pr-5 border-r border-brand-400/20 last:border-0 last:pr-0';
+          item.innerHTML = `
+            <div class="flex items-baseline gap-1 justify-center lg:justify-start">
+              <span class="text-2xl md:text-3xl font-bold text-amber-300 leading-none">${count}</span>
+              <span class="text-xs font-normal text-brand-200">项</span>
+            </div>
+            <span class="text-xs md:text-sm text-brand-200 font-medium mt-1 block">${domain}</span>
+          `;
+          skillStatsContainer.appendChild(item);
+        });
+      }
+
+      // 2. Experience Years Breakdown by Role Type
+      const expTypeYears = {};
+      experienceData.forEach(e => {
+        const type = e.type || '综合履历';
+        expTypeYears[type] = (expTypeYears[type] || 0) + (parseFloat(e.years) || 0);
+      });
+
+      const expStatsContainer = document.getElementById('bannerExpStats');
+      expStatsContainer.innerHTML = '';
+      if (Object.keys(expTypeYears).length === 0) {
+        expStatsContainer.innerHTML = `<span class="text-sm text-brand-200/70">暂无工作履历</span>`;
+      } else {
+        Object.entries(expTypeYears).forEach(([type, years]) => {
+          const item = document.createElement('div');
+          item.className = 'pr-5 border-r border-brand-400/20 last:border-0 last:pr-0';
+          const displayYears = years % 1 === 0 ? years.toFixed(0) : years.toFixed(1);
+          item.innerHTML = `
+            <div class="flex items-baseline gap-1 justify-center lg:justify-start">
+              <span class="text-2xl md:text-3xl font-bold text-cyan-300 leading-none">${displayYears}</span>
+              <span class="text-xs font-normal text-brand-200">年</span>
+            </div>
+            <span class="text-xs md:text-sm text-brand-200 font-medium mt-1 block">${type}</span>
+          `;
+          expStatsContainer.appendChild(item);
+        });
+      }
+    }
+
+    /* Modal Operations: Skill */
+    function openSkillModal(isEdit = false) {
+      if (!isEdit) {
+        document.getElementById('skillForm').reset();
+        document.getElementById('skillId').value = '';
+        document.getElementById('skillModalTitle').textContent = '添加技能项';
+      }
+      document.getElementById('skillModal').classList.remove('hidden');
+    }
+
+    function closeSkillModal() {
+      document.getElementById('skillModal').classList.add('hidden');
+    }
+
+    function saveSkill(e) {
+      e.preventDefault();
+      const id = document.getElementById('skillId').value;
+      const name = document.getElementById('skillName').value;
+      const domain = document.getElementById('skillDomain').value;
+      const level = document.getElementById('skillLevel').value;
+
+      if (id) {
+        const item = skillsData.find(s => s.id === parseInt(id));
+        if (item) {
+          item.name = name;
+          item.domain = domain;
+          item.level = level;
+        }
+        showToast('技能修改保存成功');
+      } else {
+        skillsData.push({
+          id: Date.now(),
+          name,
+          domain,
+          level
+        });
+        showToast('已成功新增技能项');
+      }
+
+      closeSkillModal();
+      renderSkills();
+    }
+
+    function editSkill(id) {
+      const skill = skillsData.find(s => s.id === id);
+      if (!skill) return;
+
+      document.getElementById('skillId').value = skill.id;
+      document.getElementById('skillName').value = skill.name;
+      document.getElementById('skillDomain').value = skill.domain || '编程与后端技能';
+      document.getElementById('skillLevel').value = skill.level;
+      document.getElementById('skillModalTitle').textContent = '编辑技能项';
+
+      openSkillModal(true);
+    }
+
+    /* Modal Operations: Experience */
+    function openExperienceModal(isEdit = false) {
+      if (!isEdit) {
+        document.getElementById('expForm').reset();
+        document.getElementById('expId').value = '';
+        document.getElementById('expModalTitle').textContent = '添加工作履历';
+      }
+      document.getElementById('experienceModal').classList.remove('hidden');
+    }
+
+    function closeExperienceModal() {
+      document.getElementById('experienceModal').classList.add('hidden');
+    }
+
+    function saveExperience(e) {
+      e.preventDefault();
+      const id = document.getElementById('expId').value;
+      const company = document.getElementById('expCompany').value;
+      const role = document.getElementById('expRole').value;
+      const type = document.getElementById('expType').value;
+      const period = document.getElementById('expPeriod').value;
+      const years = parseFloat(document.getElementById('expYears').value) || 0;
+      
+      const rawHighlights = document.getElementById('expHighlights').value;
+      const highlights = rawHighlights.split('\n').filter(h => h.trim() !== '');
+      
+      const rawTech = document.getElementById('expTechStack').value;
+      const techStack = rawTech.split(/[,，]/).map(t => t.trim()).filter(t => t !== '');
+
+      if (id) {
+        const item = experienceData.find(e => e.id === parseInt(id));
+        if (item) {
+          item.company = company;
+          item.role = role;
+          item.type = type;
+          item.period = period;
+          item.years = years;
+          item.highlights = highlights;
+          item.techStack = techStack;
+        }
+        showToast('工作履历更新成功');
+      } else {
+        experienceData.push({
+          id: Date.now(),
+          company,
+          role,
+          type,
+          period,
+          years,
+          highlights,
+          techStack
+        });
+        showToast('已新增工作履历记录');
+      }
+
+      closeExperienceModal();
+      renderExperiences();
+    }
+
+    function editExperience(id) {
+      const exp = experienceData.find(e => e.id === id);
+      if (!exp) return;
+
+      document.getElementById('expId').value = exp.id;
+      document.getElementById('expCompany').value = exp.company;
+      document.getElementById('expRole').value = exp.role;
+      document.getElementById('expType').value = exp.type || '';
+      document.getElementById('expPeriod').value = exp.period;
+      document.getElementById('expYears').value = exp.years;
+      document.getElementById('expHighlights').value = exp.highlights.join('\n');
+      document.getElementById('expTechStack').value = exp.techStack.join(', ');
+      document.getElementById('expModalTitle').textContent = '编辑工作履历';
+
+      openExperienceModal(true);
+    }
+
+    /* Delete Confirmation Operations */
+    let deleteTarget = { type: null, id: null };
+
+    function confirmDelete(type, id) {
+      deleteTarget = { type, id };
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      deleteTarget = { type: null, id: null };
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    }
+
+    function executeDelete() {
+      if (deleteTarget.type === 'skill') {
+        skillsData = skillsData.filter(s => s.id !== deleteTarget.id);
+        renderSkills();
+        showToast('已移除该技能项');
+      } else if (deleteTarget.type === 'exp') {
+        experienceData = experienceData.filter(e => e.id !== deleteTarget.id);
+        renderExperiences();
+        showToast('已移除该履历记录');
+      }
+      closeDeleteModal();
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toastMessage');
+      document.getElementById('toastText').textContent = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    /* Page Initialization */
+    window.onload = function() {
+      renderSkills();
+      renderExperiences();
+    };
+  </script>
+</body>
+</html>

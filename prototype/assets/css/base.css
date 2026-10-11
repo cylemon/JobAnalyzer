@@ -1,0 +1,48 @@
+/* ==========================================================================
+   base.css —— 全局基础样式（所有页面共用）
+   加载顺序：tailwind CDN → 本文件 → components.css → 页面级 css
+   说明：Tailwind Play CDN 只会处理内联的 <style type="text/tailwindcss">，
+        不会处理外部 css 文件（也没有 @apply），因此这里全部手写原生 CSS。
+
+        与 Tailwind 的层叠关系：CDN 运行时会把自己编译出的样式（含 preflight）
+        追加到 <head> 末尾，即排在本文件之后；而本文件的组件类是类选择器，
+        优先级高于 preflight 的元素选择器，因此组件样式不会被 preflight 重置。
+        （注意不要在这里使用 @layer —— 未分层的 preflight 会反过来压过分层样式。）
+
+        副作用：类选择器之间优先级相同时后者胜出，所以页面里额外加的 utility
+        依然可以覆盖同名组件属性（例如 .card 之外再写 rounded-3xl）。
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #F8FAFC;
+  color: #0F172A;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+/* 卡片投影（页面中大量单独使用，保留为独立类） */
+.card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+}
+
+.card-shadow-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-shadow-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(72, 78, 136, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+}
